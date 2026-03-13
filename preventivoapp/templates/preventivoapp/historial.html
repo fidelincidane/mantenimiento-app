@@ -1,0 +1,96 @@
+{% extends 'preventivoapp/base.html' %}
+
+{% block title %}Historial{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="bi bi-clock-history"></i> Historial</h2>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" id="historialTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="preventivos-tab" data-bs-toggle="tab" data-bs-target="#preventivos" type="button">
+            <i class="bi bi-check-circle"></i> Preventivos
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="correctivos-tab" data-bs-toggle="tab" data-bs-target="#correctivos" type="button">
+            <i class="bi bi-exclamation-triangle"></i> Correctivos
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="historialTabContent">
+    <div class="tab-pane fade show active" id="preventivos">
+        <div class="card mb-4">
+            <div class="card-body">
+                {% if preventivos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>PDS</th>
+                                <th>Automatismo</th>
+                                <th>Fecha</th>
+                                <th>Técnico</th>
+                                <th>Tiempo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in preventivos %}
+                            <tr style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">
+                                <td><strong>{{ p.codigo }}</strong></td>
+                                <td>{{ p.automatismo.codigo }}</td>
+                                <td>{{ p.fecha_inicio }}</td>
+                                <td>{{ p.tecnico.username }}</td>
+                                <td>{{ p.tiempo|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No hay preventivos finalizados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="correctivos">
+        <div class="card">
+            <div class="card-body">
+                {% if correctivos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>PDS</th>
+                                <th>Automatismo</th>
+                                <th>Fecha</th>
+                                <th>Técnico</th>
+                                <th>Tiempo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in correctivos %}
+                            <tr style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">
+                                <td><strong>{{ c.codigo }}</strong></td>
+                                <td>{{ c.automatismo.codigo }}</td>
+                                <td>{{ c.fecha_inicio }}</td>
+                                <td>{{ c.tecnico.username }}</td>
+                                <td>{{ c.tiempo|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No hay correctivos finalizados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

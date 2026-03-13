@@ -1,0 +1,78 @@
+{% extends 'preventivoapp/base.html' %}
+
+{% block title %}Automatismos{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <a href="{% url 'crear_preventivo' %}" class="btn btn-primary btn-lg w-100 py-4">
+            <i class="bi bi-check-circle"></i> INICIAR PREVENTIVO
+        </a>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0">
+        <a href="{% url 'crear_correctivo' %}" class="btn btn-danger btn-lg w-100 py-4">
+            <i class="bi bi-exclamation-triangle"></i> INICIAR CORRECTIVO
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="bi bi-grid"></i> Automatismos</h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if automatismos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Último PDS</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for aut in automatismos %}
+                            <tr>
+                                <td><strong>{{ aut.codigo }}</strong></td>
+                                <td>
+                                    {% with aut.preventivos.first as ultimo %}
+                                        {% if ultimo %}
+                                            <span class="badge bg-{{ ultimo.estado }}">
+                                                {{ ultimo.codigo }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a href="{% url 'crear_preventivo' %}?automatismo={{ aut.id }}" class="btn btn-sm btn-outline-primary" title="Preventivo">
+                                            <i class="bi bi-check-circle"></i>
+                                        </a>
+                                        <a href="{% url 'crear_correctivo' %}?automatismo={{ aut.id }}" class="btn btn-sm btn-outline-danger" title="Correctivo">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted py-4">
+                    <i class="bi bi-info-circle"></i> Los automatismos se crearán al iniciar el primer preventivo o correctivo
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

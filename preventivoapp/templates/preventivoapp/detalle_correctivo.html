@@ -1,0 +1,279 @@
+{% extends 'preventivoapp/base.html' %}
+
+{% block title %}{{ correctivo.codigo }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="bi bi-exclamation-triangle"></i> {{ correctivo.codigo }}</h2>
+            <span class="badge bg-{{ correctivo.estado|default:'secondary' }} fs-6">
+                {{ correctivo.get_estado_display }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Información</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Automatismo:</strong> {{ correctivo.automatismo.codigo }}</p>
+                <p><strong>Técnico:</strong> {{ correctivo.tecnico.username }}</p>
+                <p><strong>Fecha:</strong> {{ correctivo.fecha_inicio }}</p>
+                <p><strong>Hora inicio:</strong> {{ correctivo.hora_inicio }}</p>
+                {% if correctivo.tiempo %}
+                <p><strong>Tiempo:</strong> {{ correctivo.tiempo }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Descripción de la avería</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ correctivo.descripcion }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Solución aplicada</h5>
+            </div>
+            <div class="card-body">
+                {% if correctivo.estado != 'finalizado' %}
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <textarea name="solucion" class="form-control mb-2" rows="3" placeholder="Describe la solución...">{{ correctivo.solucion }}</textarea>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </form>
+                {% else %}
+                <p>{{ correctivo.solucion|default:"Sin solución registrada" }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Deficiencias</h5>
+                {% if correctivo.estado != 'finalizado' %}
+                <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#deficienciaModal">
+                    <i class="bi bi-plus"></i>
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if correctivo.deficiencias.all %}
+                <ul class="list-group">
+                    {% for def in correctivo.deficiencias.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ def.get_tipo_display }}</strong>
+                            <span class="badge bg-{% if def.severidad == 'alta' or def.severidad == 'critica' %}danger{% elif def.severidad == 'media' %}warning{% else %}success{% endif %}">
+                                {{ def.get_severidad_display }}
+                            </span>
+                            <p class="mb-0 small">{{ def.descripcion }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Sin deficiencias</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-gear"></i> Recambios</h5>
+                {% if correctivo.estado != 'finalizado' %}
+                <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#recambioModal">
+                    <i class="bi bi-plus"></i>
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if correctivo.recambios.all %}
+                <ul class="list-group">
+                    {% for rec in correctivo.recambios.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ rec.nombre }}
+                        <span class="badge bg-primary rounded-pill">{{ rec.cantidad }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Sin recambios</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-camera"></i> Fotos</h5>
+                {% if correctivo.estado != 'finalizado' %}
+                <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#fotoModal">
+                    <i class="bi bi-plus"></i>
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if correctivo.fotos.all %}
+                <div class="row">
+                    {% for foto in correctivo.fotos.all %}
+                    <div class="col-6 col-md-3 mb-2">
+                        <a href="{{ foto.imagen.url }}" target="_blank">
+                            <img src="{{ foto.imagen.url }}" class="img-fluid rounded" style="max-height: 150px;">
+                        </a>
+                        {% if foto.descripcion %}
+                        <small class="d-block text-muted">{{ foto.descripcion }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">Sin fotos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if correctivo.estado != 'finalizado' %}
+        <a href="{% url 'finalizar_correctivo' correctivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar correctivo?')">
+            <i class="bi bi-check-circle"></i> Finalizar Correctivo
+        </a>
+        {% endif %}
+        <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+{% if correctivo.estado != 'finalizado' %}
+<div class="modal fade" id="deficienciaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Deficiencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'agregar_deficiencia_correctivo' correctivo.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Tipo</label>
+                        <select name="tipo" class="form-select" required>
+                            <option value="electrica">Eléctrica</option>
+                            <option value="mecanica">Mecánica</option>
+                            <option value="neumatica">Neumática</option>
+                            <option value="hidraulica">Hidráulica</option>
+                            <option value="software">Software</option>
+                            <option value="otra">Otra</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Severidad</label>
+                        <select name="severidad" class="form-select" required>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="2" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="recambioModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Recambio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'agregar_recambio_correctivo' correctivo.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Cantidad</label>
+                        <input type="number" name="cantidad" class="form-control" value="1" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="fotoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Foto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" action="{% url 'agregar_foto_correctivo' correctivo.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Imagen</label>
+                        <input type="file" name="imagen" class="form-control" id="imagenInputCorrectivo" accept="image/*" required>
+                        <div class="mt-2">
+                            <label class="btn btn-outline-primary btn-sm me-1" for="imagenInputCorrectivo">
+                                <i class="bi bi-images"></i> Galería
+                            </label>
+                            <label class="btn btn-outline-primary btn-sm" onclick="document.getElementById('imagenInputCorrectivo').setAttribute('capture','environment');document.getElementById('imagenInputCorrectivo').click();">
+                                <i class="bi bi-camera"></i> Cámara
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Descripción (opcional)</label>
+                        <input type="text" name="descripcion" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Subir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

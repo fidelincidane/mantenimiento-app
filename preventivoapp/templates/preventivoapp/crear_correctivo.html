@@ -1,0 +1,51 @@
+{% extends 'preventivoapp/base.html' %}
+
+{% block title %}Nuevo Correctivo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="bi bi-exclamation-triangle"></i> Nuevo Correctivo</h2>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Automatismo</label>
+                        <div class="input-group">
+                            <span class="input-group-text">AUT</span>
+                            <input type="text" name="automatismo" class="form-control" placeholder="001" 
+                                   value="{{ automatismo_preseleccionado.codigo|slice:'3:'|default:'' }}" required>
+                        </div>
+                        <small class="text-muted">Se creará automáticamente si no existe</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Código PDS</label>
+                        <div class="input-group">
+                            <span class="input-group-text">PDS-</span>
+                            <input type="text" name="codigo" class="form-control" placeholder="001" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción de la avería</label>
+                        <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe la avería..." required></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-exclamation-triangle"></i> INICIAR CORRECTIVO
+                        </button>
+                        <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
