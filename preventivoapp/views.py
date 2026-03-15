@@ -12,11 +12,13 @@ import cloudinary
 import cloudinary.uploader
 import datetime
 
-cloudinary.config(
-    cloud_name=settings.CLOUDINARY_STORAGE['CLOUD_NAME'],
-    api_key=settings.CLOUDINARY_STORAGE['API_KEY'],
-    api_secret=settings.CLOUDINARY_STORAGE['API_SECRET']
-)
+
+def get_cloudinary_config():
+    cloudinary.config(
+        cloud_name=settings.CLOUDINARY_STORAGE.get('CLOUD_NAME', ''),
+        api_key=settings.CLOUDINARY_STORAGE.get('API_KEY', ''),
+        api_secret=settings.CLOUDINARY_STORAGE.get('API_SECRET', '')
+    )
 
 
 def login_view(request):
@@ -236,6 +238,9 @@ def agregar_foto(request, id):
         
         if imagen:
             try:
+                # Configurar Cloudinary
+                get_cloudinary_config()
+                
                 # Subir a Cloudinary
                 result = cloudinary.uploader.upload(
                     imagen,
@@ -419,6 +424,9 @@ def agregar_foto_correctivo(request, id):
         
         if imagen:
             try:
+                # Configurar Cloudinary
+                get_cloudinary_config()
+                
                 # Subir a Cloudinary
                 result = cloudinary.uploader.upload(
                     imagen,
