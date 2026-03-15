@@ -226,12 +226,15 @@ def agregar_foto(request, id):
         descripcion = request.POST.get('descripcion', '')
         
         if imagen:
-            Foto.objects.create(
-                preventivo=preventivo,
-                imagen=imagen,
-                descripcion=descripcion
-            )
-            messages.success(request, 'Foto añadida')
+            try:
+                foto = Foto.objects.create(
+                    preventivo=preventivo,
+                    imagen=imagen,
+                    descripcion=descripcion
+                )
+                messages.success(request, f'Foto añadida: {foto.imagen.url}')
+            except Exception as e:
+                messages.error(request, f'Error al guardar foto: {str(e)}')
     
     return redirect('detalle_preventivo', id=id)
 
