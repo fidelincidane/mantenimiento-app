@@ -7,6 +7,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Automatismo, Preventivo, Deficiencia, Foto, Recambio
 from .models import Correctivo, DeficienciaCorrectivo, FotoCorrectivo, RecambioCorrectivo
+import cloudinary
+import cloudinary.uploader
 import datetime
 
 
@@ -227,14 +229,21 @@ def agregar_foto(request, id):
         
         if imagen:
             try:
+                # Subir a Cloudinary
+                result = cloudinary.uploader.upload(
+                    imagen,
+                    folder='mantenimiento/fotos/'
+                )
+                
+                # Guardar solo la URL en la base de datos
                 foto = Foto.objects.create(
                     preventivo=preventivo,
-                    imagen=imagen,
+                    imagen=result['secure_url'],
                     descripcion=descripcion
                 )
-                messages.success(request, f'Foto añadida: {foto.imagen.url}')
+                messages.success(request, 'Foto subida a Cloudinary')
             except Exception as e:
-                messages.error(request, f'Error al guardar foto: {str(e)}')
+                messages.error(request, f'Error al subir foto: {str(e)}')
     
     return redirect('detalle_preventivo', id=id)
 
@@ -402,12 +411,22 @@ def agregar_foto_correctivo(request, id):
         descripcion = request.POST.get('descripcion', '')
         
         if imagen:
-            FotoCorrectivo.objects.create(
-                correctivo=correctivo,
-                imagen=imagen,
-                descripcion=descripcion
-            )
-            messages.success(request, 'Foto añadida')
+            try:
+                # Subir a Cloudinary
+                result = cloudinary.uploader.upload(
+                    imagen,
+                    folder='mantenimiento/correctivos/'
+                )
+                
+                # Guardar solo la URL en la base de datos
+                FotoCorrectivo.objects.create(
+                    correctivo=correctivo,
+                    imagen=result['secure_url'],
+                    descripcion=descripcion
+                )
+                messages.success(request, 'Foto subida a Cloudinary')
+            except Exception as e:
+                messages.error(request, f'Error al subir foto: {str(e)}')
     
     return redirect('detalle_correctivo', id=id)
 
