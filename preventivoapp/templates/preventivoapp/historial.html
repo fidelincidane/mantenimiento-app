@@ -11,14 +11,21 @@
 </div>
 
 <form method="get" class="mb-3">
-    <div class="input-group">
-        <input type="text" name="busqueda" class="form-control" placeholder="Buscar por PDS o Automatismo..." value="{{ busqueda }}">
-        <button class="btn btn-primary" type="submit">
-            <i class="bi bi-search"></i> Buscar
-        </button>
-        {% if busqueda %}
-        <a href="{% url 'historial' %}" class="btn btn-secondary">Limpiar</a>
-        {% endif %}
+    <div class="row g-2">
+        <div class="col-6">
+            <input type="text" name="busqueda_pds" class="form-control" placeholder="Buscar por PDS..." value="{{ busqueda_pds }}">
+        </div>
+        <div class="col-6">
+            <input type="text" name="busqueda_aut" class="form-control" placeholder="Buscar por Automatismo..." value="{{ busqueda_aut }}">
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            {% if busqueda_pds or busqueda_aut %}
+            <a href="{% url 'historial' %}" class="btn btn-secondary">Limpiar</a>
+            {% endif %}
+        </div>
     </div>
 </form>
 

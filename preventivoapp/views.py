@@ -463,19 +463,25 @@ def eliminar_correctivo(request, id):
 
 @login_required
 def historial(request):
-    busqueda = request.GET.get('busqueda', '')
+    busqueda_pds = request.GET.get('busqueda_pds', '')
+    busqueda_aut = request.GET.get('busqueda_aut', '')
     
     preventivos = Preventivo.objects.filter(estado='finalizado').order_by('-fecha_inicio')
     correctivos = Correctivo.objects.filter(estado='finalizado').order_by('-fecha_inicio')
     
-    if busqueda:
-        preventivos = preventivos.filter(codigo__icontains=busqueda) | preventivos.filter(automatismo__codigo__icontains=busqueda)
-        correctivos = correctivos.filter(codigo__icontains=busqueda) | correctivos.filter(automatismo__codigo__icontains=busqueda)
+    if busqueda_pds:
+        preventivos = preventivos.filter(codigo__icontains=busqueda_pds)
+        correctivos = correctivos.filter(codigo__icontains=busqueda_pds)
+    
+    if busqueda_aut:
+        preventivos = preventivos.filter(automatismo__codigo__icontains=busqueda_aut)
+        correctivos = correctivos.filter(automatismo__codigo__icontains=busqueda_aut)
     
     return render(request, 'preventivoapp/historial.html', {
         'preventivos': preventivos,
         'correctivos': correctivos,
-        'busqueda': busqueda
+        'busqueda_pds': busqueda_pds,
+        'busqueda_aut': busqueda_aut
     })
 
 
