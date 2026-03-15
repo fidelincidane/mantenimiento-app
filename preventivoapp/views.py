@@ -495,3 +495,29 @@ def detalle_historial_preventivo(request, codigo_pds):
 def detalle_historial_correctivo(request, codigo_pds):
     correctivo = get_object_or_404(Correctivo, codigo=codigo_pds)
     return render(request, 'preventivoapp/detalle_historial_correctivo.html', {'correctivo': correctivo})
+
+
+# ========== RECAMBIOS ==========
+
+@login_required
+def buscar_recambios(request):
+    busqueda_nombre = request.GET.get('busqueda_nombre', '')
+    busqueda_aut = request.GET.get('busqueda_aut', '')
+    
+    recambios_preventivos = Recambio.objects.all().select_related('preventivo', 'preventivo__automatismo')
+    recambios_correctivos = RecambioCorrectivo.objects.all().select_related('correctivo', 'correctivo__automatismo')
+    
+    if busqueda_nombre:
+        recambios_preventivos = recambios_preventivos.filter(nombre__icontains=busqueda_nombre)
+        recambios_correctivos = recambios_correctivos.filter(nombre__icontains=busqueda_nombre)
+    
+    if busqueda_aut:
+        recambios_preventivos = recambios_preventivos.filter(preventivo__automatismo__codigo__icontains=busqueda_aut)
+        recambios_correctivos = recambios_correctivos.filter(correctivo__automatismo__codigo__icontains=busqueda_aut)
+    
+    return render(request, 'preventivoapp/recambios.html', {
+        'recambios_preventivos': recambios_preventivos,
+        'recambios_correctivos': recambios_correctivos,
+        'busqueda_nombre': busqueda_nombre,
+        'busqueda_aut': busqueda_aut
+    })
