@@ -16,6 +16,7 @@ urlpatterns = [
     path('preventivo/<int:id>/deficiencia/', views.agregar_deficiencia, name='agregar_deficiencia'),
     path('preventivo/<int:id>/recambio/', views.agregar_recambio, name='agregar_recambio'),
     path('preventivo/<int:id>/foto/', views.agregar_foto, name='agregar_foto'),
+    path('preventivo/<int:id>/eliminar/', views.eliminar_preventivo, name='eliminar_preventivo'),
     
     # Correctivos
     path('correctivo/nuevo/', views.crear_correctivo, name='crear_correctivo'),
@@ -26,6 +27,7 @@ urlpatterns = [
     path('correctivo/<int:id>/deficiencia/', views.agregar_deficiencia_correctivo, name='agregar_deficiencia_correctivo'),
     path('correctivo/<int:id>/recambio/', views.agregar_recambio_correctivo, name='agregar_recambio_correctivo'),
     path('correctivo/<int:id>/foto/', views.agregar_foto_correctivo, name='agregar_foto_correctivo'),
+    path('correctivo/<int:id>/eliminar/', views.eliminar_correctivo, name='eliminar_correctivo'),
     
     # Historial
     path('historial/', views.historial, name='historial'),

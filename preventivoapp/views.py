@@ -257,6 +257,14 @@ def agregar_foto(request, id):
     return redirect('detalle_preventivo', id=id)
 
 
+@login_required
+def eliminar_preventivo(request, id):
+    preventivo = get_object_or_404(Preventivo, id=id)
+    preventivo.delete()
+    messages.success(request, 'Preventivo eliminado')
+    return redirect('automatismos')
+
+
 # ========== CORRECTIVOS ==========
 
 @login_required
@@ -443,17 +451,31 @@ def agregar_foto_correctivo(request, id):
     return redirect('detalle_correctivo', id=id)
 
 
+@login_required
+def eliminar_correctivo(request, id):
+    correctivo = get_object_or_404(Correctivo, id=id)
+    correctivo.delete()
+    messages.success(request, 'Correctivo eliminado')
+    return redirect('automatismos')
+
+
 # ========== HISTORIAL ==========
 
 @login_required
 def historial(request):
-    automatismos = Automatismo.objects.all().order_by('codigo')
+    busqueda = request.GET.get('busqueda', '')
+    
     preventivos = Preventivo.objects.filter(estado='finalizado').order_by('-fecha_inicio')
     correctivos = Correctivo.objects.filter(estado='finalizado').order_by('-fecha_inicio')
+    
+    if busqueda:
+        preventivos = preventivos.filter(codigo__icontains=busqueda) | preventivos.filter(automatismo__codigo__icontains=busqueda)
+        correctivos = correctivos.filter(codigo__icontains=busqueda) | correctivos.filter(automatismo__codigo__icontains=busqueda)
+    
     return render(request, 'preventivoapp/historial.html', {
-        'automatismos': automatismos,
         'preventivos': preventivos,
-        'correctivos': correctivos
+        'correctivos': correctivos,
+        'busqueda': busqueda
     })
 
 

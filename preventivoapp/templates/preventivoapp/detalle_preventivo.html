@@ -164,6 +164,9 @@
             <a href="{% url 'finalizar_preventivo' preventivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar preventivo?')">
                 <i class="bi bi-check-circle"></i> Finalizar
             </a>
+            <a href="{% url 'eliminar_preventivo' preventivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar preventivo? Esta acción no se puede deshacer.')">
+                <i class="bi bi-trash"></i> Eliminar
+            </a>
         </div>
         {% endif %}
         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">

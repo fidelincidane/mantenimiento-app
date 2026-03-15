@@ -173,6 +173,9 @@
             <a href="{% url 'finalizar_correctivo' correctivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar correctivo?')">
                 <i class="bi bi-check-circle"></i> Finalizar
             </a>
+            <a href="{% url 'eliminar_correctivo' correctivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar correctivo? Esta acción no se puede deshacer.')">
+                <i class="bi bi-trash"></i> Eliminar
+            </a>
         </div>
         {% endif %}
         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">

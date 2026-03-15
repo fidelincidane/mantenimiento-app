@@ -9,12 +9,19 @@
     </div>
 </div>
 
-<ul class="nav nav-tabs mb-3" id="historialTab" role="tablist">
-    <li class="nav-item" role="presentation">
-        <button class="nav-link" id="automatismos-tab" data-bs-toggle="tab" data-bs-target="#automatismos" type="button">
-            <i class="bi bi-grid"></i> Automatismos
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="busqueda" class="form-control" placeholder="Buscar por PDS o Automatismo..." value="{{ busqueda }}">
+        <button class="btn btn-primary" type="submit">
+            <i class="bi bi-search"></i> Buscar
         </button>
-    </li>
+        {% if busqueda %}
+        <a href="{% url 'historial' %}" class="btn btn-secondary">Limpiar</a>
+        {% endif %}
+    </div>
+</form>
+
+<ul class="nav nav-tabs mb-3" id="historialTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="preventivos-tab" data-bs-toggle="tab" data-bs-target="#preventivos" type="button">
             <i class="bi bi-check-circle"></i> Preventivos
@@ -28,56 +35,6 @@
 </ul>
 
 <div class="tab-content" id="historialTabContent">
-    <div class="tab-pane fade" id="automatismos">
-        <div class="card mb-4">
-            <div class="card-body">
-                {% if automatismos %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Último PDS</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for aut in automatismos %}
-                            <tr>
-                                <td><strong>{{ aut.codigo }}</strong></td>
-                                <td>
-                                    {% with aut.preventivos.first as ultimo %}
-                                        {% if ultimo %}
-                                            <span class="badge bg-{{ ultimo.estado }}">
-                                                {{ ultimo.codigo }}
-                                            </span>
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
-                                    {% endwith %}
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group">
-                                        <a href="{% url 'crear_preventivo' %}?automatismo={{ aut.id }}" class="btn btn-sm btn-outline-primary" title="Preventivo">
-                                            <i class="bi bi-check-circle"></i>
-                                        </a>
-                                        <a href="{% url 'crear_correctivo' %}?automatismo={{ aut.id }}" class="btn btn-sm btn-outline-danger" title="Correctivo">
-                                            <i class="bi bi-exclamation-triangle"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-center text-muted">No hay automatismos</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
     <div class="tab-pane fade show active" id="preventivos">
         <div class="card mb-4">
             <div class="card-body">
