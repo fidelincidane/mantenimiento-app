@@ -22,9 +22,11 @@ class Preventivo(models.Model):
     tiempo = models.DurationField(null=True, blank=True, verbose_name='Tiempo transcurrido')
     observaciones = models.TextField(blank=True, verbose_name='Observaciones / Anomalías')
     fecha_fin = models.DateTimeField(null=True, blank=True, verbose_name='Fecha fin')
+    hora_parada = models.DateTimeField(null=True, blank=True, verbose_name='Hora de última parada')
     estado = models.CharField(max_length=20, choices=[
         ('iniciado', 'Iniciado'),
-        ('en_progreso', 'En progreso'),
+        ('en_progreso', 'En curso'),
+        ('parado', 'Parado'),
         ('finalizado', 'Finalizado')
     ], default='iniciado', verbose_name='Estado')
 
@@ -104,9 +106,11 @@ class Correctivo(models.Model):
     hora_inicio = models.TimeField(auto_now_add=True, verbose_name='Hora inicio')
     tiempo = models.DurationField(null=True, blank=True, verbose_name='Tiempo transcurrido')
     fecha_fin = models.DateTimeField(null=True, blank=True, verbose_name='Fecha fin')
+    hora_parada = models.DateTimeField(null=True, blank=True, verbose_name='Hora de última parada')
     estado = models.CharField(max_length=20, choices=[
         ('iniciado', 'Iniciado'),
         ('en_reparacion', 'En reparación'),
+        ('parado', 'Parado'),
         ('finalizado', 'Finalizado')
     ], default='iniciado', verbose_name='Estado')
 

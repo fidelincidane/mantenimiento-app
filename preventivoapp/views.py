@@ -36,7 +36,16 @@ def logout_view(request):
 @login_required
 def lista_automatismos(request):
     automatismos = Automatismo.objects.all().order_by('codigo')
-    return render(request, 'preventivoapp/automatismos.html', {'automatismos': automatismos})
+    
+    # Preventivos en curso o parados (no finalizados)
+    preventivos_curso = Preventivo.objects.exclude(estado='finalizado').order_by('-fecha_inicio')
+    correctivos_curso = Correctivo.objects.exclude(estado='finalizado').order_by('-fecha_inicio')
+    
+    return render(request, 'preventivoapp/automatismos.html', {
+        'automatismos': automatismos,
+        'preventivos_curso': preventivos_curso,
+        'correctivos_curso': correctivos_curso
+    })
 
 
 @login_required
@@ -107,13 +116,66 @@ def finalizar_preventivo(request, id):
     
     if preventivo.hora_inicio:
         ahora = timezone.now()
+        # Calcular tiempo total
         inicio = timezone.make_aware(datetime.datetime.combine(preventivo.fecha_inicio, preventivo.hora_inicio))
-        preventivo.tiempo = ahora - inicio
+        
+        # Si estaba parado, calcular tiempo hasta la parada
+        if preventivo.hora_parada:
+            tiempo_hasta_parada = preventivo.hora_parada - inicio
+            # Añadir tiempo anterior si existe
+            if preventivo.tiempo:
+                preventivo.tiempo = preventivo.tiempo + tiempo_hasta_parada
+            else:
+                preventivo.tiempo = tiempo_hasta_parada
+        else:
+            # No estaba parado, calcular normalmente
+            tiempo_transcurrido = ahora - inicio
+            if preventivo.tiempo:
+                preventivo.tiempo = preventivo.tiempo + tiempo_transcurrido
+            else:
+                preventivo.tiempo = tiempo_transcurrido
     
     preventivo.estado = 'finalizado'
     preventivo.fecha_fin = timezone.now()
     preventivo.save()
     messages.success(request, f'Preventivo {preventivo.codigo} finalizado')
+    return redirect('detalle_preventivo', id=preventivo.id)
+
+
+@login_required
+def parar_preventivo(request, id):
+    preventivo = get_object_or_404(Preventivo, id=id)
+    
+    ahora = timezone.now()
+    inicio = timezone.make_aware(datetime.datetime.combine(preventivo.fecha_inicio, preventivo.hora_inicio))
+    
+    if preventivo.hora_parada:
+        # Ya estaba parado antes, calcular tiempo entre la última parada y ahora
+        tiempo_desde_ultima_parada = ahora - preventivo.hora_parada
+        if preventivo.tiempo:
+            preventivo.tiempo = preventivo.tiempo + tiempo_desde_ultima_parada
+        else:
+            preventivo.tiempo = tiempo_desde_ultima_parada
+    else:
+        # Primera vez que para
+        tiempo_transcurrido = ahora - inicio
+        preventivo.tiempo = tiempo_transcurrido
+    
+    preventivo.hora_parada = ahora
+    preventivo.estado = 'parado'
+    preventivo.save()
+    messages.success(request, 'Preventivo parado')
+    return redirect('detalle_preventivo', id=preventivo.id)
+
+
+@login_required
+def reanudar_preventivo(request, id):
+    preventivo = get_object_or_404(Preventivo, id=id)
+    
+    preventivo.hora_parada = None
+    preventivo.estado = 'en_progreso'
+    preventivo.save()
+    messages.success(request, 'Preventivo reanudado')
     return redirect('detalle_preventivo', id=preventivo.id)
 
 
@@ -234,12 +296,59 @@ def finalizar_correctivo(request, id):
     if correctivo.hora_inicio:
         ahora = timezone.now()
         inicio = timezone.make_aware(datetime.datetime.combine(correctivo.fecha_inicio, correctivo.hora_inicio))
-        correctivo.tiempo = ahora - inicio
+        
+        if correctivo.hora_parada:
+            tiempo_hasta_parada = correctivo.hora_parada - inicio
+            if correctivo.tiempo:
+                correctivo.tiempo = correctivo.tiempo + tiempo_hasta_parada
+            else:
+                correctivo.tiempo = tiempo_hasta_parada
+        else:
+            tiempo_transcurrido = ahora - inicio
+            if correctivo.tiempo:
+                correctivo.tiempo = correctivo.tiempo + tiempo_transcurrido
+            else:
+                correctivo.tiempo = tiempo_transcurrido
     
     correctivo.estado = 'finalizado'
     correctivo.fecha_fin = timezone.now()
     correctivo.save()
     messages.success(request, f'Correctivo {correctivo.codigo} finalizado')
+    return redirect('detalle_correctivo', id=correctivo.id)
+
+
+@login_required
+def parar_correctivo(request, id):
+    correctivo = get_object_or_404(Correctivo, id=id)
+    
+    ahora = timezone.now()
+    inicio = timezone.make_aware(datetime.datetime.combine(correctivo.fecha_inicio, correctivo.hora_inicio))
+    
+    if correctivo.hora_parada:
+        tiempo_desde_ultima_parada = ahora - correctivo.hora_parada
+        if correctivo.tiempo:
+            correctivo.tiempo = correctivo.tiempo + tiempo_desde_ultima_parada
+        else:
+            correctivo.tiempo = tiempo_desde_ultima_parada
+    else:
+        tiempo_transcurrido = ahora - inicio
+        correctivo.tiempo = tiempo_transcurrido
+    
+    correctivo.hora_parada = ahora
+    correctivo.estado = 'parado'
+    correctivo.save()
+    messages.success(request, 'Correctivo parado')
+    return redirect('detalle_correctivo', id=correctivo.id)
+
+
+@login_required
+def reanudar_correctivo(request, id):
+    correctivo = get_object_or_404(Correctivo, id=id)
+    
+    correctivo.hora_parada = None
+    correctivo.estado = 'en_reparacion'
+    correctivo.save()
+    messages.success(request, 'Correctivo reanudado')
     return redirect('detalle_correctivo', id=correctivo.id)
 
 
