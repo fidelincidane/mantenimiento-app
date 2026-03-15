@@ -107,7 +107,7 @@
                     {% for foto in preventivo.fotos.all %}
                     <div class="col-6 col-md-3 mb-2">
                         <a href="{{ foto.imagen }}" target="_blank">
-                            <img src="{{ foto.imagen }}" class="img-fluid rounded" style="max-height: 150px;">
+                            <img src="{{ foto.imagen }}" class="img-fluid rounded" style="max-width: 100%; max-height: 200px; height: auto;">
                         </a>
                         {% if foto.descripcion %}
                         <small class="d-block text-muted">{{ foto.descripcion }}</small>

@@ -262,7 +262,7 @@ def eliminar_preventivo(request, id):
     preventivo = get_object_or_404(Preventivo, id=id)
     preventivo.delete()
     messages.success(request, 'Preventivo eliminado')
-    return redirect('automatismos')
+    return redirect('historial')
 
 
 # ========== CORRECTIVOS ==========
@@ -456,7 +456,7 @@ def eliminar_correctivo(request, id):
     correctivo = get_object_or_404(Correctivo, id=id)
     correctivo.delete()
     messages.success(request, 'Correctivo eliminado')
-    return redirect('automatismos')
+    return redirect('historial')
 
 
 # ========== HISTORIAL ==========

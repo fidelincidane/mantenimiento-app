@@ -49,16 +49,22 @@
                                 <th>Fecha</th>
                                 <th>Técnico</th>
                                 <th>Tiempo</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for p in preventivos %}
-                            <tr style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">
-                                <td><strong>{{ p.codigo }}</strong></td>
-                                <td>{{ p.automatismo.codigo }}</td>
-                                <td>{{ p.fecha_inicio }}</td>
-                                <td>{{ p.tecnico.username }}</td>
-                                <td>{{ p.tiempo|duration }}</td>
+                            <tr>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'"><strong>{{ p.codigo }}</strong></td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.automatismo.codigo }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.fecha_inicio }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tecnico.username }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tiempo|duration }}</td>
+                                <td>
+                                    <a href="{% url 'eliminar_preventivo' p.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar preventivo?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -84,16 +90,22 @@
                                 <th>Fecha</th>
                                 <th>Técnico</th>
                                 <th>Tiempo</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for c in correctivos %}
-                            <tr style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">
-                                <td><strong>{{ c.codigo }}</strong></td>
-                                <td>{{ c.automatismo.codigo }}</td>
-                                <td>{{ c.fecha_inicio }}</td>
-                                <td>{{ c.tecnico.username }}</td>
-                                <td>{{ c.tiempo|duration }}</td>
+                            <tr>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'"><strong>{{ c.codigo }}</strong></td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.automatismo.codigo }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.fecha_inicio }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tecnico.username }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tiempo|duration }}</td>
+                                <td>
+                                    <a href="{% url 'eliminar_correctivo' c.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar correctivo?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
