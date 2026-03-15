@@ -46,14 +46,11 @@ def logout_view(request):
 
 @login_required
 def lista_automatismos(request):
-    automatismos = Automatismo.objects.all().order_by('codigo')
-    
-    # Preventivos en curso o parados (no finalizados)
-    preventivos_curso = Preventivo.objects.exclude(estado='finalizado').order_by('-fecha_inicio')
-    correctivos_curso = Correctivo.objects.exclude(estado='finalizado').order_by('-fecha_inicio')
+    # Solo mostrar preventivo y correctivos en estado iniciado o parado
+    preventivos_curso = Preventivo.objects.filter(estado__in=['iniciado', 'parado']).order_by('-fecha_inicio')
+    correctivos_curso = Correctivo.objects.filter(estado__in=['iniciado', 'parado']).order_by('-fecha_inicio')
     
     return render(request, 'preventivoapp/automatismos.html', {
-        'automatismos': automatismos,
         'preventivos_curso': preventivos_curso,
         'correctivos_curso': correctivos_curso
     })
@@ -450,9 +447,11 @@ def agregar_foto_correctivo(request, id):
 
 @login_required
 def historial(request):
+    automatismos = Automatismo.objects.all().order_by('codigo')
     preventivos = Preventivo.objects.filter(estado='finalizado').order_by('-fecha_inicio')
     correctivos = Correctivo.objects.filter(estado='finalizado').order_by('-fecha_inicio')
     return render(request, 'preventivoapp/historial.html', {
+        'automatismos': automatismos,
         'preventivos': preventivos,
         'correctivos': correctivos
     })
