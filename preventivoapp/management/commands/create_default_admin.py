@@ -5,6 +5,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not User.objects.filter(username='admin').exists():
             User.objects.create_superuser('admin', 'admin@test.com', 'admin123')
-            self.stdout.write(self.style.SUCCESS('Usuario admin creado: admin / admin123'))
+            print('Usuario admin creado: admin / admin123')
         else:
-            self.stdout.write('El usuario admin ya existe')
+            print('El usuario admin ya existe')
