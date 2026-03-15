@@ -5,11 +5,18 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from .models import Automatismo, Preventivo, Deficiencia, Foto, Recambio
 from .models import Correctivo, DeficienciaCorrectivo, FotoCorrectivo, RecambioCorrectivo
 import cloudinary
 import cloudinary.uploader
 import datetime
+
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=settings.CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=settings.CLOUDINARY_STORAGE['API_SECRET']
+)
 
 
 def login_view(request):
