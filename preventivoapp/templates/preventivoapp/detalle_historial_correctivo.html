@@ -1,4 +1,5 @@
 {% extends 'preventivoapp/base.html' %}
+{% load extras %}
 
 {% block title %}{{ correctivo.codigo }}{% endblock %}
 
@@ -27,7 +28,7 @@
                 <p><strong>Fecha fin:</strong> {{ correctivo.fecha_fin }}</p>
                 {% endif %}
                 {% if correctivo.tiempo %}
-                <p><strong>Tiempo total:</strong> {{ correctivo.tiempo }}</p>
+                <p><strong>Tiempo total:</strong> {{ correctivo.tiempo|duration }}</p>
                 {% endif %}
             </div>
         </div>

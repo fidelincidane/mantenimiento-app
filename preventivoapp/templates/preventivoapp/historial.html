@@ -1,4 +1,5 @@
 {% extends 'preventivoapp/base.html' %}
+{% load extras %}
 
 {% block title %}Historial{% endblock %}
 
@@ -57,7 +58,7 @@
                                 <td>{{ p.automatismo.codigo }}</td>
                                 <td>{{ p.fecha_inicio }}</td>
                                 <td>{{ p.tecnico.username }}</td>
-                                <td>{{ p.tiempo|default:"-" }}</td>
+                                <td>{{ p.tiempo|duration }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -92,7 +93,7 @@
                                 <td>{{ c.automatismo.codigo }}</td>
                                 <td>{{ c.fecha_inicio }}</td>
                                 <td>{{ c.tecnico.username }}</td>
-                                <td>{{ c.tiempo|default:"-" }}</td>
+                                <td>{{ c.tiempo|duration }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

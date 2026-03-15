@@ -1,4 +1,5 @@
 {% extends 'preventivoapp/base.html' %}
+{% load extras %}
 
 {% block title %}{{ preventivo.codigo }}{% endblock %}
 
@@ -26,7 +27,7 @@
                 <p><strong>Fecha:</strong> {{ preventivo.fecha_inicio }}</p>
                 <p><strong>Hora inicio:</strong> {{ preventivo.hora_inicio }}</p>
                 {% if preventivo.tiempo %}
-                <p><strong>Tiempo:</strong> {{ preventivo.tiempo }}</p>
+                <p><strong>Tiempo:</strong> {{ correcto.tiempo|duration }}</p>
                 {% endif %}
             </div>
         </div>
