@@ -11,6 +11,11 @@ import datetime
 
 
 def login_view(request):
+    # Crear superusuario si no existe
+    from django.contrib.auth.models import User
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@test.com', 'admin123')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
