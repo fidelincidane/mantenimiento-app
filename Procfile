@@ -1,2 +1,1 @@
-release: python manage.py migrate
-web: gunicorn mantenimiento.wsgi --log-file -
+web: python manage.py migrate && gunicorn mantenimiento.wsgi --log-file -
