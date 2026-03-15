@@ -125,17 +125,14 @@ LOGIN_REDIRECT_URL = 'automatismos'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Cloudinary (para fotos en la nube)
-# Configurar en variables de entorno:
-# CLOUDINARY_CLOUD_NAME=xxx
-# CLOUDINARY_API_KEY=xxx
-# CLOUDINARY_API_SECRET=xxx
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-CLOUDINARY_URL = f"cloudinary://{''}:{''}@{''}"  # Se sobreescribe con env vars
+# Solo usar si están configuradas las variables de entorno
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '')
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
 
-# Crear superusuario por defecto si no existe
-if not DEBUG:
-    from django.core.management import execute_from_command_line
-    from django.contrib.auth.models import User
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@test.com', 'admin123')
-        print('Superusuario admin creado')
+if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    CLOUDINARY_URL = f"cloudinary://{CLOUDINARY_API_KEY}:{CLOUDINARY_API_SECRET}@{CLOUDINARY_CLOUD_NAME}"
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_ROOT = BASE_DIR / 'media'
