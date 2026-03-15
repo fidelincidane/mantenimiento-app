@@ -71,7 +71,7 @@ class Deficiencia(models.Model):
 
 class Foto(models.Model):
     preventivo = models.ForeignKey(Preventivo, on_delete=models.CASCADE, related_name='fotos')
-    imagen = models.ImageField(verbose_name='Imagen')
+    imagen = models.URLField(verbose_name='Imagen')
     descripcion = models.CharField(max_length=200, blank=True, verbose_name='Descripción')
     fecha = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
 
@@ -155,7 +155,7 @@ class DeficienciaCorrectivo(models.Model):
 
 class FotoCorrectivo(models.Model):
     correctivo = models.ForeignKey(Correctivo, on_delete=models.CASCADE, related_name='fotos')
-    imagen = models.ImageField(verbose_name='Imagen')
+    imagen = models.URLField(verbose_name='Imagen')
     descripcion = models.CharField(max_length=200, blank=True, verbose_name='Descripción')
     fecha = models.DateTimeField(auto_now_add=True, verbose_name='Fecha')
 
