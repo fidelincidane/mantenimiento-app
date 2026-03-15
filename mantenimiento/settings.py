@@ -131,3 +131,11 @@ LOGOUT_REDIRECT_URL = 'login'
 # CLOUDINARY_API_SECRET=xxx
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_URL = f"cloudinary://{''}:{''}@{''}"  # Se sobreescribe con env vars
+
+# Crear superusuario por defecto si no existe
+if not DEBUG:
+    from django.core.management import execute_from_command_line
+    from django.contrib.auth.models import User
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@test.com', 'admin123')
+        print('Superusuario admin creado')
