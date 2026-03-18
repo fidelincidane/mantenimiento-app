@@ -1,0 +1,63 @@
+{% extends 'preventivoapp/base.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+
+{% if preventivos_curso or correctivos_curso %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="bi bi-play-circle"></i> En Curso</h4>
+    </div>
+</div>
+
+<div class="row mb-4">
+    {% for p in preventivos_curso %}
+    <div class="col-6 col-md-3 mb-2">
+        <a href="{% url 'detalle_preventivo' p.id %}" class="card text-decoration-none">
+            <div class="card-body text-center">
+                <span class="badge bg-primary mb-1">Preventivo</span>
+                <h6 class="mb-1">{{ p.codigo }}</h6>
+                <small class="text-muted">{{ p.automatismo.codigo }}</small><br>
+                <span class="badge bg-{% if p.estado == 'parado' %}warning{% else %}info{% endif %}">
+                    {{ p.get_estado_display }}
+                </span>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+    
+    {% for c in correctivos_curso %}
+    <div class="col-6 col-md-3 mb-2">
+        <a href="{% url 'detalle_correctivo' c.id %}" class="card text-decoration-none">
+            <div class="card-body text-center">
+                <span class="badge bg-danger mb-1">Correctivo</span>
+                <h6 class="mb-1">{{ c.codigo }}</h6>
+                <small class="text-muted">{{ c.automatismo.codigo }}</small><br>
+                <span class="badge bg-{% if c.estado == 'parado' %}warning{% else %}info{% endif %}">
+                    {{ c.get_estado_display }}
+                </span>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No hay preventivos o correctivos iniciados o parados
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <a href="{% url 'crear_preventivo' %}" class="btn btn-primary btn-lg w-100 py-4">
+            <i class="bi bi-check-circle"></i> NUEVO PREVENTIVO
+        </a>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0">
+        <a href="{% url 'crear_correctivo' %}" class="btn btn-danger btn-lg w-100 py-4">
+            <i class="bi bi-exclamation-triangle"></i> NUEVO CORRECTIVO
+        </a>
+    </div>
+</div>
+{% endblock %}

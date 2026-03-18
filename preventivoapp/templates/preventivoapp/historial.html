@@ -1,0 +1,128 @@
+{% extends 'preventivoapp/base.html' %}
+{% load extras %}
+
+{% block title %}Historial{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="bi bi-clock-history"></i> Historial</h2>
+    </div>
+</div>
+
+<form method="get" class="mb-3">
+    <div class="row g-2">
+        <div class="col-6">
+            <input type="text" name="busqueda_pds" class="form-control" placeholder="Buscar por PDS..." value="{{ busqueda_pds }}">
+        </div>
+        <div class="col-6">
+            <input type="text" name="busqueda_aut" class="form-control" placeholder="Buscar por Automatismo..." value="{{ busqueda_aut }}">
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            {% if busqueda_pds or busqueda_aut %}
+            <a href="{% url 'historial' %}" class="btn btn-secondary">Limpiar</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+<ul class="nav nav-tabs mb-3" id="historialTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="preventivos-tab" data-bs-toggle="tab" data-bs-target="#preventivos" type="button">
+            <i class="bi bi-check-circle"></i> Preventivos
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="correctivos-tab" data-bs-toggle="tab" data-bs-target="#correctivos" type="button">
+            <i class="bi bi-exclamation-triangle"></i> Correctivos
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="historialTabContent">
+    <div class="tab-pane fade show active" id="preventivos">
+        <div class="card mb-4">
+            <div class="card-body">
+                {% if preventivos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>PDS</th>
+                                <th>Automatismo</th>
+                                <th>Fecha</th>
+                                <th>Técnico</th>
+                                <th>Tiempo</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in preventivos %}
+                            <tr>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'"><strong>{{ p.codigo }}</strong></td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.automatismo.codigo }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.fecha_inicio }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tecnico.username }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tiempo|duration }}</td>
+                                <td>
+                                    <a href="{% url 'eliminar_preventivo' p.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar preventivo?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No hay preventivos finalizados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="correctivos">
+        <div class="card">
+            <div class="card-body">
+                {% if correctivos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>PDS</th>
+                                <th>Automatismo</th>
+                                <th>Fecha</th>
+                                <th>Técnico</th>
+                                <th>Tiempo</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in correctivos %}
+                            <tr>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'"><strong>{{ c.codigo }}</strong></td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.automatismo.codigo }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.fecha_inicio }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tecnico.username }}</td>
+                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tiempo|duration }}</td>
+                                <td>
+                                    <a href="{% url 'eliminar_correctivo' c.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar correctivo?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No hay correctivos finalizados</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

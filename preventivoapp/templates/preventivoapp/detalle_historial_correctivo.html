@@ -1,0 +1,142 @@
+{% extends 'preventivoapp/base.html' %}
+{% load extras %}
+
+{% block title %}{{ correctivo.codigo }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="bi bi-exclamation-triangle"></i> {{ correctivo.codigo }}</h2>
+            <span class="badge bg-danger fs-6">Correctivo</span>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Información</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Automatismo:</strong> {{ correctivo.automatismo.codigo }}</p>
+                <p><strong>Técnico:</strong> {{ correctivo.tecnico.username }}</p>
+                <p><strong>Fecha inicio:</strong> {{ correctivo.fecha_inicio }}</p>
+                <p><strong>Hora inicio:</strong> {{ correctivo.hora_inicio }}</p>
+                {% if correctivo.fecha_fin %}
+                <p><strong>Fecha fin:</strong> {{ correctivo.fecha_fin }}</p>
+                {% endif %}
+                {% if correctivo.tiempo %}
+                <p><strong>Tiempo total:</strong> {{ correctivo.tiempo|duration }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Descripción de la avería</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ correctivo.descripcion }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Solución aplicada</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ correctivo.solucion|default:"Sin solución registrada" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Deficiencias ({{ correctivo.deficiencias.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if correctivo.deficiencias.all %}
+                <ul class="list-group">
+                    {% for def in correctivo.deficiencias.all %}
+                    <li class="list-group-item">
+                        <strong>{{ def.get_tipo_display }}</strong>
+                        <span class="badge bg-{% if def.severidad == 'alta' or def.severidad == 'critica' %}danger{% elif def.severidad == 'media' %}warning{% else %}success{% endif %}">
+                            {{ def.get_severidad_display }}
+                        </span>
+                        <p class="mb-0 small">{{ def.descripcion }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Sin deficiencias</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-gear"></i> Recambios ({{ correctivo.recambios.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if correctivo.recambios.all %}
+                <ul class="list-group">
+                    {% for rec in correctivo.recambios.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ rec.nombre }}
+                        <span class="badge bg-primary rounded-pill">{{ rec.cantidad }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">Sin recambios</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-camera"></i> Fotos ({{ correctivo.fotos.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if correctivo.fotos.all %}
+                <div class="row">
+                    {% for foto in correctivo.fotos.all %}
+                    <div class="col-6 col-md-3 mb-2">
+                        <a href="{{ foto.imagen }}" target="_blank">
+                            <img src="{{ foto.imagen }}" class="img-fluid rounded" style="max-width: 100%; max-height: 200px; height: auto;">
+                        </a>
+                        {% if foto.descripcion %}
+                        <small class="d-block text-muted">{{ foto.descripcion }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">Sin fotos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <a href="{% url 'historial' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Historial
+        </a>
+    </div>
+</div>
+{% endblock %}

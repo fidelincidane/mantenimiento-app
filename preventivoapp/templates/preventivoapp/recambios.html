@@ -1,0 +1,112 @@
+{% extends 'preventivoapp/base.html' %}
+{% load extras %}
+
+{% block title %}Recambios{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-4"><i class="bi bi-tools"></i> Recambios</h2>
+    </div>
+</div>
+
+<form method="get" class="mb-3">
+    <div class="row g-2">
+        <div class="col-6">
+            <input type="text" name="busqueda_nombre" class="form-control" placeholder="Buscar por recambio..." value="{{ busqueda_nombre }}">
+        </div>
+        <div class="col-6">
+            <input type="text" name="busqueda_aut" class="form-control" placeholder="Buscar por Automatismo..." value="{{ busqueda_aut }}">
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search"></i> Buscar
+            </button>
+            {% if busqueda_nombre or busqueda_aut %}
+            <a href="{% url 'buscar_recambios' %}" class="btn btn-secondary">Limpiar</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+<ul class="nav nav-tabs mb-3" id="recambiosTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="preventivos-tab" data-bs-toggle="tab" data-bs-target="#preventivos" type="button">
+            <i class="bi bi-check-circle"></i> Preventivos
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="correctivos-tab" data-bs-toggle="tab" data-bs-target="#correctivos" type="button">
+            <i class="bi bi-exclamation-triangle"></i> Correctivos
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="recambiosTabContent">
+    <div class="tab-pane fade show active" id="preventivos">
+        <div class="card mb-4">
+            <div class="card-body">
+                {% if recambios_preventivos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>PDS</th>
+                                <th>Automatismo</th>
+                                <th>Recambio</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in recambios_preventivos %}
+                            <tr>
+                                <td>{{ r.preventivo.codigo }}</td>
+                                <td>{{ r.preventivo.automatismo.codigo }}</td>
+                                <td>{{ r.nombre }}</td>
+                                <td>{{ r.cantidad }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No hay recambios en preventivos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="correctivos">
+        <div class="card">
+            <div class="card-body">
+                {% if recambios_correctivos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>PDS</th>
+                                <th>Automatismo</th>
+                                <th>Recambio</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in recambios_correctivos %}
+                            <tr>
+                                <td>{{ r.correctivo.codigo }}</td>
+                                <td>{{ r.correctivo.automatismo.codigo }}</td>
+                                <td>{{ r.nombre }}</td>
+                                <td>{{ r.cantidad }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-muted">No hay recambios en correctivos</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
