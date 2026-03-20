@@ -528,46 +528,189 @@ def buscar_recambios(request):
 @login_required
 def generar_pdf_preventivo(request, id):
     from django.http import HttpResponse
-    from xhtml2pdf import pisa
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+    from reportlab.lib.units import cm
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
     from io import BytesIO
-    from django.template.loader import render_to_string
+    import urllib.request
     
     preventivo = get_object_or_404(Preventivo, id=id)
     
-    html = render_to_string('preventivoapp/pdf_preventivo.html', {
-        'preventivo': preventivo,
-        'user': request.user
-    })
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
     
-    response = HttpResponse(content_type='application/pdf')
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='TitleCenter', alignment=TA_CENTER, fontSize=18, spaceAfter=20))
+    styles.add(ParagraphStyle(name='SubTitle', alignment=TA_CENTER, fontSize=12, textColor=colors.grey))
+    styles.add(ParagraphStyle(name='Section', fontSize=14, textColor=colors.HexColor('#0d6efd'), spaceBefore=15, spaceAfter=10))
+    
+    story = []
+    
+    story.append(Paragraph(preventivo.codigo, styles['TitleCenter']))
+    story.append(Paragraph(f"Automatismo: {preventivo.automatismo.codigo} | Técnico: {preventivo.tecnico.username}", styles['SubTitle']))
+    story.append(Spacer(1, 20))
+    
+    story.append(Paragraph("Información General", styles['Section']))
+    
+    info_data = [
+        ['Estado:', preventivo.get_estado_display()],
+        ['Fecha Inicio:', preventivo.fecha_inicio.strftime('%d/%m/%Y %H:%M')],
+    ]
+    if preventivo.fecha_fin:
+        info_data.append(['Fecha Fin:', preventivo.fecha_fin.strftime('%d/%m/%Y %H:%M')])
+    if preventivo.tiempo:
+        total_seconds = int(preventivo.tiempo.total_seconds())
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        info_data.append(['Tiempo Total:', f'{hours}h {minutes}m'])
+    if preventivo.descripcion:
+        info_data.append(['Descripción:', preventivo.descripcion])
+    
+    info_table = Table(info_data, colWidths=[5*cm, 12*cm])
+    info_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    story.append(info_table)
+    story.append(Spacer(1, 15))
+    
+    if preventivo.deficiencias.all():
+        story.append(Paragraph("Deficiencias", styles['Section']))
+        defic_data = [['Descripción', 'Fecha']]
+        for d in preventivo.deficiencias.all():
+            defic_data.append([d.descripcion, d.fecha.strftime('%d/%m/%Y %H:%M')])
+        defic_table = Table(defic_data, colWidths=[12*cm, 5*cm])
+        defic_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(defic_table)
+        story.append(Spacer(1, 15))
+    
+    if preventivo.recambios.all():
+        story.append(Paragraph("Recambios", styles['Section']))
+        recam_data = [['Nombre', 'Cantidad', 'Fecha']]
+        for r in preventivo.recambios.all():
+            recam_data.append([r.nombre, str(r.cantidad), r.fecha.strftime('%d/%m/%Y %H:%M')])
+        recam_table = Table(recam_data, colWidths=[8*cm, 3*cm, 6*cm])
+        recam_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(recam_table)
+    
+    doc.build(story)
+    
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{preventivo.codigo}.pdf"'
-    
-    pisa_status = pisa.CreatePDF(BytesIO(html.encode('utf-8')), dest=response)
-    
-    if pisa_status.err:
-        return HttpResponse('Error al generar PDF', status=500)
     return response
 
 
 @login_required
 def generar_pdf_correctivo(request, id):
     from django.http import HttpResponse
-    from xhtml2pdf import pisa
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.units import cm
+    from reportlab.lib.enums import TA_CENTER
     from io import BytesIO
-    from django.template.loader import render_to_string
     
     correctivo = get_object_or_404(Correctivo, id=id)
     
-    html = render_to_string('preventivoapp/pdf_correctivo.html', {
-        'correctivo': correctivo,
-        'user': request.user
-    })
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
     
-    response = HttpResponse(content_type='application/pdf')
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='TitleCenter', alignment=TA_CENTER, fontSize=18, spaceAfter=20))
+    styles.add(ParagraphStyle(name='SubTitle', alignment=TA_CENTER, fontSize=12, textColor=colors.grey))
+    styles.add(ParagraphStyle(name='Section', fontSize=14, textColor=colors.HexColor('#dc3545'), spaceBefore=15, spaceAfter=10))
+    
+    story = []
+    
+    story.append(Paragraph(correctivo.codigo, styles['TitleCenter']))
+    story.append(Paragraph(f"Automatismo: {correctivo.automatismo.codigo} | Técnico: {correctivo.tecnico.username}", styles['SubTitle']))
+    story.append(Spacer(1, 20))
+    
+    story.append(Paragraph("Información General", styles['Section']))
+    
+    info_data = [
+        ['Estado:', correctivo.get_estado_display()],
+        ['Fecha Inicio:', correctivo.fecha_inicio.strftime('%d/%m/%Y %H:%M')],
+    ]
+    if correctivo.fecha_fin:
+        info_data.append(['Fecha Fin:', correctivo.fecha_fin.strftime('%d/%m/%Y %H:%M')])
+    if correctivo.tiempo:
+        total_seconds = int(correctivo.tiempo.total_seconds())
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        info_data.append(['Tiempo Total:', f'{hours}h {minutes}m'])
+    if correctivo.descripcion:
+        info_data.append(['Descripción:', correctivo.descripcion])
+    
+    info_table = Table(info_data, colWidths=[5*cm, 12*cm])
+    info_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    story.append(info_table)
+    story.append(Spacer(1, 15))
+    
+    if correctivo.deficiencias.all():
+        story.append(Paragraph("Deficiencias", styles['Section']))
+        defic_data = [['Descripción', 'Fecha']]
+        for d in correctivo.deficiencias.all():
+            defic_data.append([d.descripcion, d.fecha.strftime('%d/%m/%Y %H:%M')])
+        defic_table = Table(defic_data, colWidths=[12*cm, 5*cm])
+        defic_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(defic_table)
+        story.append(Spacer(1, 15))
+    
+    if correctivo.recambios.all():
+        story.append(Paragraph("Recambios", styles['Section']))
+        recam_data = [['Nombre', 'Cantidad', 'Fecha']]
+        for r in correctivo.recambios.all():
+            recam_data.append([r.nombre, str(r.cantidad), r.fecha.strftime('%d/%m/%Y %H:%M')])
+        recam_table = Table(recam_data, colWidths=[8*cm, 3*cm, 6*cm])
+        recam_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(recam_table)
+    
+    doc.build(story)
+    
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{correctivo.codigo}.pdf"'
-    
-    pisa_status = pisa.CreatePDF(BytesIO(html.encode('utf-8')), dest=response)
-    
-    if pisa_status.err:
-        return HttpResponse('Error al generar PDF', status=500)
     return response
