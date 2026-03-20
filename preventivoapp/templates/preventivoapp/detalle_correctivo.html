@@ -160,28 +160,26 @@
 
 <div class="row">
     <div class="col-12">
-        {% if correctivo.estado != 'finalizado' %}
         <div class="d-flex flex-wrap gap-2 mb-3">
             {% if correctivo.estado == 'parado' %}
             <a href="{% url 'reanudar_correctivo' correctivo.id %}" class="btn btn-primary">
                 <i class="bi bi-play-fill"></i> Reanudar
             </a>
-            {% else %}
+            {% elif correctivo.estado != 'finalizado' %}
             <a href="{% url 'parar_correctivo' correctivo.id %}" class="btn btn-warning" onclick="return confirm('¿Parar correctivo?')">
                 <i class="bi bi-pause-fill"></i> Parar
             </a>
-            {% endif %}
             <a href="{% url 'finalizar_correctivo' correctivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar correctivo?')">
                 <i class="bi bi-check-circle"></i> Finalizar
             </a>
             <a href="{% url 'eliminar_correctivo' correctivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar correctivo? Esta acción no se puede deshacer.')">
                 <i class="bi bi-trash"></i> Eliminar
             </a>
+            {% endif %}
             <a href="{% url 'generar_pdf_correctivo' correctivo.id %}" class="btn btn-dark" target="_blank">
                 <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
             </a>
         </div>
-        {% endif %}
         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver
         </a>

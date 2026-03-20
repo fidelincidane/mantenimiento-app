@@ -157,22 +157,21 @@
             <a href="{% url 'reanudar_preventivo' preventivo.id %}" class="btn btn-primary">
                 <i class="bi bi-play-fill"></i> Reanudar
             </a>
-            {% else %}
+            {% elif preventivo.estado != 'finalizado' %}
             <a href="{% url 'parar_preventivo' preventivo.id %}" class="btn btn-warning" onclick="return confirm('¿Parar preventivo?')">
                 <i class="bi bi-pause-fill"></i> Parar
             </a>
-            {% endif %}
             <a href="{% url 'finalizar_preventivo' preventivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar preventivo?')">
                 <i class="bi bi-check-circle"></i> Finalizar
             </a>
             <a href="{% url 'eliminar_preventivo' preventivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar preventivo? Esta acción no se puede deshacer.')">
                 <i class="bi bi-trash"></i> Eliminar
             </a>
+            {% endif %}
             <a href="{% url 'generar_pdf_preventivo' preventivo.id %}" class="btn btn-dark" target="_blank">
                 <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
             </a>
         </div>
-        {% endif %}
         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
