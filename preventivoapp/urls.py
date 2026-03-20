@@ -10,6 +10,7 @@ urlpatterns = [
     # Preventivos
     path('preventivo/nuevo/', views.crear_preventivo, name='crear_preventivo'),
     path('preventivo/<int:id>/', views.detalle_preventivo, name='detalle_preventivo'),
+    path('preventivo/<int:id>/pdf/', views.generar_pdf_preventivo, name='generar_pdf_preventivo'),
     path('preventivo/<int:id>/finalizar/', views.finalizar_preventivo, name='finalizar_preventivo'),
     path('preventivo/<int:id>/parar/', views.parar_preventivo, name='parar_preventivo'),
     path('preventivo/<int:id>/reanudar/', views.reanudar_preventivo, name='reanudar_preventivo'),
@@ -21,6 +22,7 @@ urlpatterns = [
     # Correctivos
     path('correctivo/nuevo/', views.crear_correctivo, name='crear_correctivo'),
     path('correctivo/<int:id>/', views.detalle_correctivo, name='detalle_correctivo'),
+    path('correctivo/<int:id>/pdf/', views.generar_pdf_correctivo, name='generar_pdf_correctivo'),
     path('correctivo/<int:id>/finalizar/', views.finalizar_correctivo, name='finalizar_correctivo'),
     path('correctivo/<int:id>/parar/', views.parar_correctivo, name='parar_correctivo'),
     path('correctivo/<int:id>/reanudar/', views.reanudar_correctivo, name='reanudar_correctivo'),

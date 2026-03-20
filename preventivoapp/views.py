@@ -521,3 +521,53 @@ def buscar_recambios(request):
         'busqueda_nombre': busqueda_nombre,
         'busqueda_aut': busqueda_aut
     })
+
+
+# ========== PDF ==========
+
+@login_required
+def generar_pdf_preventivo(request, id):
+    from django.http import HttpResponse
+    from xhtml2pdf import pisa
+    from io import BytesIO
+    from django.template.loader import render_to_string
+    
+    preventivo = get_object_or_404(Preventivo, id=id)
+    
+    html = render_to_string('preventivoapp/pdf_preventivo.html', {
+        'preventivo': preventivo,
+        'user': request.user
+    })
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{preventivo.codigo}.pdf"'
+    
+    pisa_status = pisa.CreatePDF(BytesIO(html.encode('utf-8')), dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar PDF', status=500)
+    return response
+
+
+@login_required
+def generar_pdf_correctivo(request, id):
+    from django.http import HttpResponse
+    from xhtml2pdf import pisa
+    from io import BytesIO
+    from django.template.loader import render_to_string
+    
+    correctivo = get_object_or_404(Correctivo, id=id)
+    
+    html = render_to_string('preventivoapp/pdf_correctivo.html', {
+        'correctivo': correctivo,
+        'user': request.user
+    })
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{correctivo.codigo}.pdf"'
+    
+    pisa_status = pisa.CreatePDF(BytesIO(html.encode('utf-8')), dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('Error al generar PDF', status=500)
+    return response

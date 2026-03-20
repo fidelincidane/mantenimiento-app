@@ -168,6 +168,9 @@
             <a href="{% url 'eliminar_preventivo' preventivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar preventivo? Esta acción no se puede deshacer.')">
                 <i class="bi bi-trash"></i> Eliminar
             </a>
+            <a href="{% url 'generar_pdf_preventivo' preventivo.id %}" class="btn btn-dark" target="_blank">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
         </div>
         {% endif %}
         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">

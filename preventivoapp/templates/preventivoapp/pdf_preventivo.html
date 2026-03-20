@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
+        h1 { font-size: 18px; color: #333; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; }
+        h2 { font-size: 14px; color: #0d6efd; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #0d6efd; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .info-grid { display: table; width: 100%; }
+        .info-item { display: table-row; }
+        .info-label { display: table-cell; font-weight: bold; width: 30%; padding: 5px; }
+        .info-value { display: table-cell; padding: 5px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; }
+        .badge-success { background-color: #28a745; color: white; }
+        .badge-warning { background-color: #ffc107; color: black; }
+        .badge-info { background-color: #17a2b8; color: white; }
+        .badge-danger { background-color: #dc3545; color: white; }
+        .fotos-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .foto-item { text-align: center; }
+        .foto-item img { max-width: 150px; max-height: 150px; border: 1px solid #ddd; }
+        .foto-item p { font-size: 10px; margin: 5px 0 0 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .fecha { color: #666; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ preventivo.codigo }}</h1>
+        <div class="fecha">Generado: {% now "d/m/Y H:i" %} por {{ user.username }}</div>
+    </div>
+
+    <h2>Información General</h2>
+    <div class="info-grid">
+        <div class="info-item">
+            <span class="info-label">Automatismo:</span>
+            <span class="info-value">{{ preventivo.automatismo.codigo }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Estado:</span>
+            <span class="info-value">
+                {% if preventivo.estado == 'iniciado' %}<span class="badge badge-info">Iniciado</span>
+                {% elif preventivo.estado == 'en_progreso' %}<span class="badge badge-success">En Progreso</span>
+                {% elif preventivo.estado == 'parado' %}<span class="badge badge-warning">Parado</span>
+                {% else %}<span class="badge badge-secondary">Finalizado</span>{% endif %}
+            </span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Técnico:</span>
+            <span class="info-value">{{ preventivo.tecnico.username }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Fecha Inicio:</span>
+            <span class="info-value">{{ preventivo.fecha_inicio|date:"d/m/Y H:i" }}</span>
+        </div>
+        {% if preventivo.fecha_fin %}
+        <div class="info-item">
+            <span class="info-label">Fecha Fin:</span>
+            <span class="info-value">{{ preventivo.fecha_fin|date:"d/m/Y H:i" }}</span>
+        </div>
+        {% endif %}
+        {% if preventivo.tiempo %}
+        <div class="info-item">
+            <span class="info-label">Tiempo Total:</span>
+            <span class="info-value">{{ preventivo.tiempo|duration }}</span>
+        </div>
+        {% endif %}
+        {% if preventivo.descripcion %}
+        <div class="info-item">
+            <span class="info-label">Descripción:</span>
+            <span class="info-value">{{ preventivo.descripcion }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if preventivo.deficiencias.all %}
+    <h2>Deficiencias</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Descripción</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in preventivo.deficiencias.all %}
+            <tr>
+                <td>{{ d.descripcion }}</td>
+                <td>{{ d.fecha|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if preventivo.recambios.all %}
+    <h2>Recambios</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in preventivo.recambios.all %}
+            <tr>
+                <td>{{ r.nombre }}</td>
+                <td>{{ r.cantidad }}</td>
+                <td>{{ r.fecha|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if preventivo.fotos.all %}
+    <h2>Fotos</h2>
+    <div class="fotos-grid">
+        {% for f in preventivo.fotos.all %}
+        <div class="foto-item">
+            <img src="{{ f.imagen }}" alt="Foto">
+            {% if f.descripcion %}<p>{{ f.descripcion }}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+</html>
