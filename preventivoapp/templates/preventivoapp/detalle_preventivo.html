@@ -164,13 +164,15 @@
             <a href="{% url 'finalizar_preventivo' preventivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar preventivo?')">
                 <i class="bi bi-check-circle"></i> Finalizar
             </a>
-            <a href="{% url 'eliminar_preventivo' preventivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar preventivo? Esta acción no se puede deshacer.')">
+            <a href="{% url 'eliminar_preventivo' preventivo.id %}" class="btn btn-danger" onclick="return confirm('¿Eliminar preventivo?')">
                 <i class="bi bi-trash"></i> Eliminar
             </a>
             {% endif %}
+            {% if preventivo.estado == 'finalizado' %}
             <a href="{% url 'generar_pdf_preventivo' preventivo.id %}" class="btn btn-dark" target="_blank">
                 <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
             </a>
+            {% endif %}
         </div>
         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver
