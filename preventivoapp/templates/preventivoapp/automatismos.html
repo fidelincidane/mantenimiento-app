@@ -6,12 +6,6 @@
 
 {% if preventivos_curso or correctivos_curso %}
 <div class="row mb-4">
-    <div class="col-12">
-        <h4 class="mb-3"><i class="bi bi-play-circle"></i> En Curso</h4>
-    </div>
-</div>
-
-<div class="row mb-4">
     {% for p in preventivos_curso %}
     <div class="col-6 col-md-3 mb-2">
         <a href="{% url 'detalle_preventivo' p.id %}" class="card text-decoration-none">
