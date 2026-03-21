@@ -42,93 +42,145 @@
     </li>
 </ul>
 
-<div class="tab-content" id="historialTabContent">
-    <div class="tab-pane fade show active" id="preventivos">
-        <div class="card mb-4">
-            <div class="card-body">
-                {% if preventivos %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>PDS</th>
-                                <th>Automatismo</th>
-                                <th>Fecha</th>
-                                <th>Técnico</th>
-                                <th>Tiempo</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in preventivos %}
-                            <tr>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'"><strong>{{ p.codigo }}</strong></td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.automatismo.codigo }}</td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.fecha_inicio }}</td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tecnico.username }}</td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tiempo|duration }}</td>
-                                <td>
-                                    <a href="{% url 'generar_pdf_preventivo' p.id %}" class="btn btn-sm btn-dark" target="_blank">
-                                        <i class="bi bi-file-earmark-pdf"></i>
-                                    </a>
-                                    <a href="{% url 'eliminar_preventivo' p.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar preventivo?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-center text-muted">No hay preventivos finalizados</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+<form id="multiForm" method="post" action="{% url 'historial_multiple' %}">
+    {% csrf_token %}
     
-    <div class="tab-pane fade" id="correctivos">
-        <div class="card">
-            <div class="card-body">
-                {% if correctivos %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>PDS</th>
-                                <th>Automatismo</th>
-                                <th>Fecha</th>
-                                <th>Técnico</th>
-                                <th>Tiempo</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for c in correctivos %}
-                            <tr>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'"><strong>{{ c.codigo }}</strong></td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.automatismo.codigo }}</td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.fecha_inicio }}</td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tecnico.username }}</td>
-                                <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tiempo|duration }}</td>
-                                <td>
-                                    <a href="{% url 'generar_pdf_correctivo' c.id %}" class="btn btn-sm btn-dark" target="_blank">
-                                        <i class="bi bi-file-earmark-pdf"></i>
-                                    </a>
-                                    <a href="{% url 'eliminar_correctivo' c.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar correctivo?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <div class="tab-content" id="historialTabContent">
+        <div class="tab-pane fade show active" id="preventivos">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>{{ preventivos|length }} preventivo(s)</span>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAll('preventivo')">
+                            <i class="bi bi-check-all"></i> Seleccionar todos
+                        </button>
+                    </div>
                 </div>
-                {% else %}
-                <p class="text-center text-muted">No hay correctivos finalizados</p>
-                {% endif %}
+                <div class="card-body">
+                    {% if preventivos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"></th>
+                                    <th>PDS</th>
+                                    <th>Automatismo</th>
+                                    <th>Fecha</th>
+                                    <th>Técnico</th>
+                                    <th>Tiempo</th>
+                                    <th style="width: 120px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in preventivos %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="preventivos_selected" value="{{ p.id }}" class="form-check-input checkbox-preventivo">
+                                    </td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'"><strong>{{ p.codigo }}</strong></td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.automatismo.codigo }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.fecha_inicio }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tecnico.username }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tiempo|duration }}</td>
+                                    <td>
+                                        <a href="{% url 'generar_pdf_preventivo' p.id %}" class="btn btn-sm btn-dark" target="_blank">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </a>
+                                        <a href="{% url 'eliminar_preventivo' p.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" name="action" value="descargar" class="btn btn-dark">
+                            <i class="bi bi-file-earmark-pdf"></i> Descargar PDFs seleccionados
+                        </button>
+                        <button type="submit" name="action" value="eliminar" class="btn btn-danger" onclick="return confirm('¿Eliminar los seleccionados?')">
+                            <i class="bi bi-trash"></i> Eliminar seleccionados
+                        </button>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">No hay preventivos finalizados</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-pane fade" id="correctivos">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>{{ correctivos|length }} correctivo(s)</span>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAll('correctivo')">
+                            <i class="bi bi-check-all"></i> Seleccionar todos
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if correctivos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"></th>
+                                    <th>PDS</th>
+                                    <th>Automatismo</th>
+                                    <th>Fecha</th>
+                                    <th>Técnico</th>
+                                    <th>Tiempo</th>
+                                    <th style="width: 120px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in correctivos %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="correctivos_selected" value="{{ c.id }}" class="form-check-input checkbox-correctivo">
+                                    </td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'"><strong>{{ c.codigo }}</strong></td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.automatismo.codigo }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.fecha_inicio }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tecnico.username }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tiempo|duration }}</td>
+                                    <td>
+                                        <a href="{% url 'generar_pdf_correctivo' c.id %}" class="btn btn-sm btn-dark" target="_blank">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </a>
+                                        <a href="{% url 'eliminar_correctivo' c.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" name="action" value="descargar" class="btn btn-dark">
+                            <i class="bi bi-file-earmark-pdf"></i> Descargar PDFs seleccionados
+                        </button>
+                        <button type="submit" name="action" value="eliminar" class="btn btn-danger" onclick="return confirm('¿Eliminar los seleccionados?')">
+                            <i class="bi bi-trash"></i> Eliminar seleccionados
+                        </button>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">No hay correctivos finalizados</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
-</div>
+</form>
+
+<script>
+function toggleAll(tipo) {
+    const checkboxes = document.querySelectorAll('.checkbox-' + tipo);
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+}
+</script>
 {% endblock %}

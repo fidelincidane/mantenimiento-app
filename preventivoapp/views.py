@@ -602,6 +602,163 @@ def historial(request):
 
 
 @login_required
+def historial_multiple(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        preventivos_ids = request.POST.getlist('preventivos_selected')
+        correctivos_ids = request.POST.getlist('correctivos_selected')
+        
+        if action == 'eliminar':
+            if preventivos_ids:
+                Preventivo.objects.filter(id__in=preventivos_ids).delete()
+                messages.success(request, f'{len(preventivos_ids)} preventivo(s) eliminado(s)')
+            if correctivos_ids:
+                Correctivo.objects.filter(id__in=correctivos_ids).delete()
+                messages.success(request, f'{len(correctivos_ids)} correctivo(s) eliminado(s)')
+        
+        elif action == 'descargar':
+            from django.http import HttpResponse
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib import colors
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+            from reportlab.lib.units import cm
+            from reportlab.lib.enums import TA_CENTER
+            from io import BytesIO
+            
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1.5*cm, leftMargin=1.5*cm, topMargin=1.5*cm, bottomMargin=1.5*cm)
+            
+            styles = getSampleStyleSheet()
+            styles.add(ParagraphStyle(name='TitleCode', alignment=TA_CENTER, fontSize=24, spaceAfter=20, textColor=colors.HexColor('#0d6efd')))
+            styles.add(ParagraphStyle(name='Section', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold'))
+            
+            story = []
+            
+            # Generar PDFs de preventivos seleccionados
+            for i, pid in enumerate(preventivos_ids):
+                if i > 0:
+                    story.append(PageBreak())
+                
+                try:
+                    preventivo = Preventivo.objects.get(id=pid)
+                    
+                    # Titulo
+                    title_table = Table([['HOJA DE PREVENTIVO']], colWidths=[17*cm])
+                    title_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d6efd')),
+                        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 16),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+                        ('TOPPADDING', (0, 0), (-1, -1), 10),
+                    ]))
+                    story.append(title_table)
+                    story.append(Spacer(1, 10))
+                    story.append(Paragraph(f"PDS {preventivo.codigo}", styles['TitleCode']))
+                    story.append(Spacer(1, 10))
+                    
+                    # Info
+                    story.append(Paragraph("INFORMACIÓN GENERAL", styles['Section']))
+                    info_data = [
+                        ['Automatismo:', preventivo.automatismo.codigo if preventivo.automatismo else '-'],
+                        ['Técnico:', preventivo.tecnico.username if preventivo.tecnico else '-'],
+                        ['Fecha Inicio:', preventivo.fecha_inicio.strftime('%d/%m/%Y') if preventivo.fecha_inicio else '-'],
+                        ['Fecha Fin:', preventivo.fecha_fin.strftime('%d/%m/%Y %H:%M') if preventivo.fecha_fin else '-'],
+                        ['Estado:', preventivo.get_estado_display() if preventivo.estado else '-'],
+                    ]
+                    info_table = Table(info_data, colWidths=[5*cm, 12*cm])
+                    info_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e9ecef')),
+                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 10),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                        ('TOPPADDING', (0, 0), (-1, -1), 6),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                    ]))
+                    story.append(info_table)
+                    story.append(Spacer(1, 10))
+                    
+                    # Tiempo
+                    story.append(Paragraph("TIEMPO TOTAL", styles['Section']))
+                    tiempo_text = '-'
+                    if preventivo.tiempo:
+                        total_seconds = int(preventivo.tiempo.total_seconds())
+                        h, m, s = total_seconds // 3600, (total_seconds % 3600) // 60, total_seconds % 60
+                        tiempo_text = f'{h}h {m}m {s}s'
+                    story.append(Paragraph(tiempo_text, styles.get('Normal')))
+                    story.append(Spacer(1, 10))
+                    
+                    # Descripcion
+                    story.append(Paragraph("DESCRIPCIÓN DE LA AVERÍA", styles['Section']))
+                    desc_text = preventivo.observaciones if preventivo.observaciones else 'Sin descripción'
+                    story.append(Paragraph(desc_text, styles.get('Normal')))
+                    
+                except Preventivo.DoesNotExist:
+                    pass
+            
+            # Generar PDFs de correctivos seleccionados
+            for i, cid in enumerate(correctivos_ids):
+                if preventivos_ids or i > 0:
+                    story.append(PageBreak())
+                
+                try:
+                    correctivo = Correctivo.objects.get(id=cid)
+                    
+                    # Titulo
+                    title_table = Table([['HOJA DE CORRECTIVO']], colWidths=[17*cm])
+                    title_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#dc3545')),
+                        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 16),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+                        ('TOPPADDING', (0, 0), (-1, -1), 10),
+                    ]))
+                    story.append(title_table)
+                    story.append(Spacer(1, 10))
+                    story.append(Paragraph(f"PDS {correctivo.codigo}", ParagraphStyle(name='TitleCodeCorr', alignment=TA_CENTER, fontSize=24, spaceAfter=20, textColor=colors.HexColor('#dc3545'))))
+                    story.append(Spacer(1, 10))
+                    
+                    # Info
+                    story.append(Paragraph("INFORMACIÓN GENERAL", ParagraphStyle(name='SectionCorr', fontSize=12, textColor=colors.HexColor('#dc3545'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold')))
+                    info_data = [
+                        ['Automatismo:', correctivo.automatismo.codigo if correctivo.automatismo else '-'],
+                        ['Técnico:', correctivo.tecnico.username if correctivo.tecnico else '-'],
+                        ['Fecha Inicio:', correctivo.fecha_inicio.strftime('%d/%m/%Y') if correctivo.fecha_inicio else '-'],
+                        ['Fecha Fin:', correctivo.fecha_fin.strftime('%d/%m/%Y %H:%M') if correctivo.fecha_fin else '-'],
+                        ['Estado:', correctivo.get_estado_display() if correctivo.estado else '-'],
+                    ]
+                    info_table = Table(info_data, colWidths=[5*cm, 12*cm])
+                    info_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e9ecef')),
+                        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 10),
+                        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                        ('TOPPADDING', (0, 0), (-1, -1), 6),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                    ]))
+                    story.append(info_table)
+                    
+                except Correctivo.DoesNotExist:
+                    pass
+            
+            doc.build(story)
+            
+            response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="historial_mantenimiento.pdf"'
+            return response
+    
+    return redirect('historial')
+
+
+@login_required
 def detalle_historial_preventivo(request, codigo_pds):
     preventivo = get_object_or_404(Preventivo, codigo=codigo_pds)
     return render(request, 'preventivoapp/detalle_historial_preventivo.html', {'preventivo': preventivo})
