@@ -197,6 +197,14 @@ def detalle_preventivo(request, id):
                 'golpeada': 'Golpeada/a',
                 'desgastado': 'Desgastado/a',
                 'desgastada': 'Desgastada/a',
+                'estropeado': 'Estropeado/a',
+                'estropeada': 'Estropeada/a',
+                'funcionamiento': 'Mal funcionamiento',
+                'defectuoso': 'Defectuoso/a',
+                'defectuosa': 'Defectuosa/a',
+                'detectado': 'Detectado/a',
+                'detectada': 'Detectada/a',
+                'mal': 'Anomalía detectada',
             }
             
             for palabra, tipo_def in deficiencias_palabras.items():
