@@ -163,6 +163,14 @@
         .bi-question-circle-fill.text-secondary {
             animation: questionPulse 2s ease-in-out infinite;
         }
+        
+        /* Reproducir sonido */
+        .sound-enabled {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -220,5 +228,28 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
+    
+        <script>
+        function playSound(soundFile) {
+            const audio = new Audio('/static/sounds/' + soundFile);
+            audio.play().catch(e => console.log('Audio no disponible'));
+        }
+        
+        // Reproducir sonido según el mensaje flash
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.alert');
+            messages.forEach(function(msg) {
+                const text = msg.textContent.toLowerCase();
+                
+                if (text.includes('falta de repuesto') || text.includes('falta de pieza') || text.includes('falta repuesto')) {
+                    playSound('falta_repuesto.mp3');
+                } else if (text.includes('finalizado') || text.includes('terminado')) {
+                    playSound('finalizado.mp3');
+                } else if (text.includes('preventivo iniciado') || text.includes('correctivo iniciado') || text.includes('iniciado')) {
+                    playSound('iniciar_correctivo.mp3');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
