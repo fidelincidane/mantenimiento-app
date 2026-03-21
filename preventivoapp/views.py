@@ -149,14 +149,12 @@ def parar_preventivo(request, id):
     inicio = timezone.make_aware(datetime.datetime.combine(preventivo.fecha_inicio, preventivo.hora_inicio))
     
     if preventivo.hora_parada:
-        # Ya estaba parado antes, calcular tiempo entre la última parada y ahora
         tiempo_desde_ultima_parada = ahora - preventivo.hora_parada
         if preventivo.tiempo:
             preventivo.tiempo = preventivo.tiempo + tiempo_desde_ultima_parada
         else:
             preventivo.tiempo = tiempo_desde_ultima_parada
     else:
-        # Primera vez que para
         tiempo_transcurrido = ahora - inicio
         preventivo.tiempo = tiempo_transcurrido
     
@@ -164,6 +162,30 @@ def parar_preventivo(request, id):
     preventivo.estado = 'parado'
     preventivo.save()
     messages.success(request, 'Preventivo parado')
+    return redirect('detalle_preventivo', id=preventivo.id)
+
+
+@login_required
+def parar_falta_recambio(request, id):
+    preventivo = get_object_or_404(Preventivo, id=id)
+    
+    ahora = timezone.now()
+    inicio = timezone.make_aware(datetime.datetime.combine(preventivo.fecha_inicio, preventivo.hora_inicio))
+    
+    if preventivo.hora_parada:
+        tiempo_desde_ultima_parada = ahora - preventivo.hora_parada
+        if preventivo.tiempo:
+            preventivo.tiempo = preventivo.tiempo + tiempo_desde_ultima_parada
+        else:
+            preventivo.tiempo = tiempo_desde_ultima_parada
+    else:
+        tiempo_transcurrido = ahora - inicio
+        preventivo.tiempo = tiempo_transcurrido
+    
+    preventivo.hora_parada = ahora
+    preventivo.estado = 'parado'
+    preventivo.save()
+    messages.warning(request, 'Preventivo parado por falta de repuesto')
     return redirect('detalle_preventivo', id=preventivo.id)
 
 
@@ -367,6 +389,30 @@ def parar_correctivo(request, id):
     correctivo.estado = 'parado'
     correctivo.save()
     messages.success(request, 'Correctivo parado')
+    return redirect('detalle_correctivo', id=correctivo.id)
+
+
+@login_required
+def parar_falta_recambio_correctivo(request, id):
+    correctivo = get_object_or_404(Correctivo, id=id)
+    
+    ahora = timezone.now()
+    inicio = timezone.make_aware(datetime.datetime.combine(correctivo.fecha_inicio, correctivo.hora_inicio))
+    
+    if correctivo.hora_parada:
+        tiempo_desde_ultima_parada = ahora - correctivo.hora_parada
+        if correctivo.tiempo:
+            correctivo.tiempo = correctivo.tiempo + tiempo_desde_ultima_parada
+        else:
+            correctivo.tiempo = tiempo_desde_ultima_parada
+    else:
+        tiempo_transcurrido = ahora - inicio
+        correctivo.tiempo = tiempo_transcurrido
+    
+    correctivo.hora_parada = ahora
+    correctivo.estado = 'parado'
+    correctivo.save()
+    messages.warning(request, 'Correctivo parado por falta de repuesto')
     return redirect('detalle_correctivo', id=correctivo.id)
 
 

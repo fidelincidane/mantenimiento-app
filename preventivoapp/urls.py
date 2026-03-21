@@ -42,4 +42,6 @@ urlpatterns = [
     path('recambios/multiple/', views.recambios_multiple, name='recambios_multiple'),
     path('recambio/<int:id>/eliminar/', views.eliminar_recambio, name='eliminar_recambio'),
     path('recambio-correctivo/<int:id>/eliminar/', views.eliminar_recambio_correctivo, name='eliminar_recambio_correctivo'),
+    path('preventivo/<int:id>/parar-falta-recambio/', views.parar_falta_recambio, name='parar_falta_recambio'),
+    path('correctivo/<int:id>/parar-falta-recambio/', views.parar_falta_recambio_correctivo, name='parar_falta_recambio_correctivo'),
 ]

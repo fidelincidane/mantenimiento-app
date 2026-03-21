@@ -176,6 +176,9 @@
             <a href="{% url 'parar_correctivo' correctivo.id %}" class="btn btn-warning" onclick="return confirm('¿Parar correctivo?')">
                 <i class="bi bi-pause-fill"></i> Parar
             </a>
+            <a href="{% url 'parar_falta_recambio_correctivo' correctivo.id %}" class="btn btn-secondary" onclick="return confirm('¿Parar por falta de repuesto?')">
+                <i class="bi bi-tools"></i> Parar falta repuesto
+            </a>
             <a href="{% url 'finalizar_correctivo' correctivo.id %}" class="btn btn-success" onclick="return confirm('¿Finalizar correctivo?')">
                 <i class="bi bi-check-circle"></i> Finalizar
             </a>
