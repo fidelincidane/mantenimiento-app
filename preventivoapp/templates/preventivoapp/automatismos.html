@@ -9,31 +9,59 @@
 <div class="row mb-4">
     {% for p in preventivos_curso %}
     <div class="col-6 col-md-3 mb-2">
-        <a href="{% url 'detalle_preventivo' p.id %}" class="card text-decoration-none">
-            <div class="card-body text-center">
+        <div class="card text-decoration-none h-100">
+            <div class="card-body text-center d-flex flex-column">
                 <span class="badge bg-primary mb-1">Preventivo</span>
                 <h6 class="mb-1">{{ p.codigo }}</h6>
                 <small class="text-muted">{{ p.automatismo.codigo }}</small><br>
-                <span class="badge bg-{{ p.estado|badge_color }}">
+                <span class="badge bg-{{ p.estado|badge_color }} mb-2">
                     {{ p.get_estado_display }}
                 </span>
+                <div class="mt-auto">
+                    <a href="{% url 'detalle_preventivo' p.id %}" class="btn btn-sm btn-primary w-100 mb-1">
+                        <i class="bi bi-eye"></i> Ver
+                    </a>
+                    {% if p.estado == 'parado' %}
+                    <a href="{% url 'reanudar_preventivo' p.id %}" class="btn btn-sm btn-success w-100 mb-1">
+                        <i class="bi bi-play-fill"></i> Reanudar
+                    </a>
+                    {% elif p.estado != 'finalizado' %}
+                    <a href="{% url 'parar_preventivo' p.id %}" class="btn btn-sm btn-warning w-100" onclick="return confirm('¿Parar preventivo?')">
+                        <i class="bi bi-pause-fill"></i> Parar
+                    </a>
+                    {% endif %}
+                </div>
             </div>
-        </a>
+        </div>
     </div>
     {% endfor %}
     
     {% for c in correctivos_curso %}
     <div class="col-6 col-md-3 mb-2">
-        <a href="{% url 'detalle_correctivo' c.id %}" class="card text-decoration-none">
-            <div class="card-body text-center">
+        <div class="card text-decoration-none h-100">
+            <div class="card-body text-center d-flex flex-column">
                 <span class="badge bg-danger mb-1">Correctivo</span>
                 <h6 class="mb-1">{{ c.codigo }}</h6>
                 <small class="text-muted">{{ c.automatismo.codigo }}</small><br>
-                <span class="badge bg-{{ c.estado|badge_color }}">
+                <span class="badge bg-{{ c.estado|badge_color }} mb-2">
                     {{ c.get_estado_display }}
                 </span>
+                <div class="mt-auto">
+                    <a href="{% url 'detalle_correctivo' c.id %}" class="btn btn-sm btn-danger w-100 mb-1">
+                        <i class="bi bi-eye"></i> Ver
+                    </a>
+                    {% if c.estado == 'parado' %}
+                    <a href="{% url 'reanudar_correctivo' c.id %}" class="btn btn-sm btn-success w-100 mb-1">
+                        <i class="bi bi-play-fill"></i> Reanudar
+                    </a>
+                    {% elif c.estado != 'finalizado' %}
+                    <a href="{% url 'parar_correctivo' c.id %}" class="btn btn-sm btn-warning w-100" onclick="return confirm('¿Parar correctivo?')">
+                        <i class="bi bi-pause-fill"></i> Parar
+                    </a>
+                    {% endif %}
+                </div>
             </div>
-        </a>
+        </div>
     </div>
     {% endfor %}
 </div>

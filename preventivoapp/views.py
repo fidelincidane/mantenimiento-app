@@ -217,6 +217,15 @@ def agregar_recambio(request, id):
 
 
 @login_required
+def eliminar_recambio(request, id):
+    recambio = get_object_or_404(Recambio, id=id)
+    preventivo_id = recambio.preventivo.id
+    recambio.delete()
+    messages.success(request, 'Recambio eliminado')
+    return redirect('detalle_preventivo', id=preventivo_id)
+
+
+@login_required
 def agregar_foto(request, id):
     preventivo = get_object_or_404(Preventivo, id=id)
     
@@ -408,6 +417,15 @@ def agregar_recambio_correctivo(request, id):
         messages.success(request, 'Recambio registrado')
     
     return redirect('detalle_correctivo', id=id)
+
+
+@login_required
+def eliminar_recambio_correctivo(request, id):
+    recambio = get_object_or_404(RecambioCorrectivo, id=id)
+    correctivo_id = recambio.correctivo.id
+    recambio.delete()
+    messages.success(request, 'Recambio eliminado')
+    return redirect('detalle_correctivo', id=correctivo_id)
 
 
 @login_required

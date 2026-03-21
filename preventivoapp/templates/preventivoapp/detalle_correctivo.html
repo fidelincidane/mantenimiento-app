@@ -112,8 +112,15 @@
                 <ul class="list-group">
                     {% for rec in correctivo.recambios.all %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ rec.nombre }}
-                        <span class="badge bg-primary rounded-pill">{{ rec.cantidad }}</span>
+                        <span>
+                            {{ rec.nombre }}
+                            <span class="badge bg-primary rounded-pill ms-1">{{ rec.cantidad }}</span>
+                        </span>
+                        {% if correctivo.estado != 'finalizado' %}
+                        <a href="{% url 'eliminar_recambio_correctivo' rec.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar recambio?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        {% endif %}
                     </li>
                     {% endfor %}
                 </ul>

@@ -40,4 +40,6 @@ urlpatterns = [
     # Recambios
     path('recambios/', views.buscar_recambios, name='buscar_recambios'),
     path('recambios/multiple/', views.recambios_multiple, name='recambios_multiple'),
+    path('recambio/<int:id>/eliminar/', views.eliminar_recambio, name='eliminar_recambio'),
+    path('recambio-correctivo/<int:id>/eliminar/', views.eliminar_recambio_correctivo, name='eliminar_recambio_correctivo'),
 ]
