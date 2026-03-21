@@ -1,66 +1,86 @@
-# Mantenimiento - App de Gestión de Mantenimiento
+# Mantenimiento - App de Gestion de Mantenimiento
 
-## Tecnologías
-- **Backend**: Django 6 (Python)
-- **Frontend**: HTML + Bootstrap 5
-- **Base de datos**: SQLite (desarrollo) / PostgreSQL (producción)
+Aplicacion web para la gestion de mantenimiento preventivo/correctivo, desarrollada con Django y desplegada en Render.
 
-## Requisitos
+## Demo en vivo 🌍
+
+👉 **App en Render:** _pendiente de añadir URL publica_
+
+## Tecnologias 🛠️
+
+- **Backend:** Django 6 (Python)
+- **Frontend:** HTML + Bootstrap 5
+- **Base de datos:** SQLite (desarrollo) / PostgreSQL (produccion)
+- **Media storage:** Cloudinary
+- **Servidor de produccion:** Gunicorn + Whitenoise
+
+## Requisitos 📋
+
 - Python 3.8+
-- Django 6
+- pip actualizado
+- PostgreSQL (para produccion)
 
-## Instalación local
+## Instalacion local 🚀
 
 ```bash
-# 1. Instalar dependencias
+# 1) Crear entorno virtual (opcional pero recomendado)
+python -m venv .venv
+
+# 2) Activar entorno virtual (Windows)
+.venv\Scripts\activate
+
+# 3) Instalar dependencias
 pip install -r requirements.txt
 
-# 2. Migrar base de datos
+# 4) Migrar base de datos
 python manage.py migrate
 
-# 3. Crear superusuario
+# 5) Crear superusuario
 python manage.py createsuperuser
 
-# 4. Ejecutar servidor
+# 6) Ejecutar servidor
 python manage.py runserver
 ```
 
-## Despliegue en Render
+## Variables de entorno 🔐
 
-### Archivos necesarios ya incluidos:
-- `requirements.txt` - dependencias
-- `Procfile` - comando de inicio
+Configura estas variables para entorno de produccion:
 
-### Pasos:
-1. **Sube el proyecto a GitHub**
-   - Crea un repositorio nuevo en GitHub
-   - Sube la carpeta `mantenimiento/`
+- `SECRET_KEY`
+- `DEBUG=False`
+- `ALLOWED_HOSTS`
+- `DATABASE_URL`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_KEY_SECRET`
 
-2. **Crear cuenta en Render**
-   - Ve a render.com
-   - Inicia sesión con GitHub
+## Despliegue en Render 🌐
 
-3. **Crear Base de Datos PostgreSQL**
-   - New → PostgreSQL
-   - Guarda la URL de conexión
+### Archivos clave del proyecto 📁
 
-4. **Crear Web Service**
-   - New → Web Service
-   - Conecta tu repositorio de GitHub
-   - Configura:
-     - **Build Command**: `pip install -r requirements.txt`
-     - **Start Command**: `gunicorn mantenimiento.wsgi`
-   - En **Environment Variables**:
-     - `SECRET_KEY`: Genera una nueva (python -c "import secrets; print(secrets.token_urlsafe(50))")
-     - `DEBUG`: `False`
-     - `ALLOWED_HOSTS`: `tuapp.onrender.com`
-     - `DATABASE_URL`: Pega la URL de PostgreSQL
+- `requirements.txt` (dependencias de Python)
+- `Procfile` (comando de inicio en Render)
+- `mantenimiento/settings.py` (configuracion de entorno)
 
-5. **Migrar base de datos**
-   - En Render, ve a **Shell** del web service
-   - Ejecuta: `python manage.py migrate`
-   - Crea superusuario: `python manage.py createsuperuser`
+### Configuracion sugerida en Render ✅
 
-### Notas importantes:
-- Las fotos se almacenan localmente. En producción usa **Cloudinary** o **AWS S3** para almacenamiento de archivos.
-- El servicio gratuito de Render hiberna después de 15 min de inactividad.
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `python manage.py migrate && python manage.py collectstatic --noinput && gunicorn mantenimiento.wsgi --log-file -`
+
+### Pasos de despliegue
+
+1. Conectar el repositorio en Render
+2. Configurar variables de entorno
+3. Desplegar el servicio
+4. Verificar acceso y panel admin
+
+## Almacenamiento de imagenes en Cloudinary ☁️
+
+Las imagenes del sistema se almacenan en Cloudinary para evitar perdida de archivos en hosting gratuito y mejorar disponibilidad.
+
+## Caracteristicas principales ✨
+
+- Gestion de mantenimiento preventivo y correctivo
+- Carga de imagenes de evidencias
+- Panel administrativo Django
+- Generacion de reportes en PDF
