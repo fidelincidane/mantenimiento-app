@@ -634,14 +634,14 @@ def historial_multiple(request):
 
 
 @login_required
-def detalle_historial_preventivo(request, codigo_pds):
-    preventivo = get_object_or_404(Preventivo, codigo=codigo_pds)
+def detalle_historial_preventivo(request, id):
+    preventivo = get_object_or_404(Preventivo, id=id)
     return render(request, 'preventivoapp/detalle_historial_preventivo.html', {'preventivo': preventivo})
 
 
 @login_required
-def detalle_historial_correctivo(request, codigo_pds):
-    correctivo = get_object_or_404(Correctivo, codigo=codigo_pds)
+def detalle_historial_correctivo(request, id):
+    correctivo = get_object_or_404(Correctivo, id=id)
     return render(request, 'preventivoapp/detalle_historial_correctivo.html', {'correctivo': correctivo})
 
 
@@ -669,6 +669,25 @@ def buscar_recambios(request):
         'busqueda_nombre': busqueda_nombre,
         'busqueda_aut': busqueda_aut
     })
+
+
+@login_required
+def recambios_multiple(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'eliminar':
+            prev_ids = request.POST.getlist('recambios_prev_selected')
+            corr_ids = request.POST.getlist('recambios_corr_selected')
+            
+            if prev_ids:
+                Recambio.objects.filter(id__in=prev_ids).delete()
+            if corr_ids:
+                RecambioCorrectivo.objects.filter(id__in=corr_ids).delete()
+            
+            messages.success(request, 'Recambios eliminados')
+    
+    return redirect('buscar_recambios')
 
 
 # ========== PDF ==========

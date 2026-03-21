@@ -22,10 +22,9 @@
             <div class="card-body">
                 <p><strong>Automatismo:</strong> {{ preventivo.automatismo.codigo }}</p>
                 <p><strong>Técnico:</strong> {{ preventivo.tecnico.username }}</p>
-                <p><strong>Fecha inicio:</strong> {{ preventivo.fecha_inicio }}</p>
-                <p><strong>Hora inicio:</strong> {{ preventivo.hora_inicio }}</p>
+                <p><strong>Fecha inicio:</strong> {{ preventivo.fecha_inicio|date:"d/m/Y" }} a las {{ preventivo.hora_inicio|time:"H:i" }}</p>
                 {% if preventivo.fecha_fin %}
-                <p><strong>Fecha fin:</strong> {{ preventivo.fecha_fin }}</p>
+                <p><strong>Fecha fin:</strong> {{ preventivo.fecha_fin|date:"d/m/Y H:i" }}</p>
                 {% endif %}
                 {% if preventivo.tiempo %}
                 <p><strong>Tiempo total:</strong> {{ preventivo.tiempo|duration }}</p>

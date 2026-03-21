@@ -22,10 +22,9 @@
             <div class="card-body">
                 <p><strong>Automatismo:</strong> {{ correctivo.automatismo.codigo }}</p>
                 <p><strong>Técnico:</strong> {{ correctivo.tecnico.username }}</p>
-                <p><strong>Fecha inicio:</strong> {{ correctivo.fecha_inicio }}</p>
-                <p><strong>Hora inicio:</strong> {{ correctivo.hora_inicio }}</p>
+                <p><strong>Fecha inicio:</strong> {{ correctivo.fecha_inicio|date:"d/m/Y" }} a las {{ correctivo.hora_inicio|time:"H:i" }}</p>
                 {% if correctivo.fecha_fin %}
-                <p><strong>Fecha fin:</strong> {{ correctivo.fecha_fin }}</p>
+                <p><strong>Fecha fin:</strong> {{ correctivo.fecha_fin|date:"d/m/Y H:i" }}</p>
                 {% endif %}
                 {% if correctivo.tiempo %}
                 <p><strong>Tiempo total:</strong> {{ correctivo.tiempo|duration }}</p>

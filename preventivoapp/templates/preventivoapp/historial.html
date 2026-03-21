@@ -77,11 +77,11 @@
                                     <td>
                                         <input type="checkbox" name="preventivos_selected" value="{{ p.id }}" class="form-check-input checkbox-preventivo">
                                     </td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'"><strong>{{ p.codigo }}</strong></td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.automatismo.codigo }}</td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.fecha_inicio }}</td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tecnico.username }}</td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tiempo|duration }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.id %}'"><strong>{{ p.codigo }}</strong></td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.id %}'">{{ p.automatismo.codigo }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.id %}'">{{ p.fecha_inicio|date:"d/m/Y" }} {{ p.hora_inicio|time:"H:i" }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.id %}'">{{ p.tecnico.username }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.id %}'">{{ p.tiempo|duration }}</td>
                                     <td>
                                         <a href="{% url 'generar_pdf_preventivo' p.id %}" class="btn btn-sm btn-dark" target="_blank">
                                             <i class="bi bi-file-earmark-pdf"></i>
@@ -141,11 +141,11 @@
                                     <td>
                                         <input type="checkbox" name="correctivos_selected" value="{{ c.id }}" class="form-check-input checkbox-correctivo">
                                     </td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'"><strong>{{ c.codigo }}</strong></td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.automatismo.codigo }}</td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.fecha_inicio }}</td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tecnico.username }}</td>
-                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tiempo|duration }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.id %}'"><strong>{{ c.codigo }}</strong></td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.id %}'">{{ c.automatismo.codigo }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.id %}'">{{ c.fecha_inicio|date:"d/m/Y" }} {{ c.hora_inicio|time:"H:i" }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.id %}'">{{ c.tecnico.username }}</td>
+                                    <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.id %}'">{{ c.tiempo|duration }}</td>
                                     <td>
                                         <a href="{% url 'generar_pdf_correctivo' c.id %}" class="btn btn-sm btn-dark" target="_blank">
                                             <i class="bi bi-file-earmark-pdf"></i>

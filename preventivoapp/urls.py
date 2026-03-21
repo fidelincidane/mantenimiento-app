@@ -34,9 +34,10 @@ urlpatterns = [
     # Historial
     path('historial/', views.historial, name='historial'),
     path('historial/multiple/', views.historial_multiple, name='historial_multiple'),
-    path('historial/preventivo/<str:codigo_pds>/', views.detalle_historial_preventivo, name='detalle_historial_preventivo'),
-    path('historial/correctivo/<str:codigo_pds>/', views.detalle_historial_correctivo, name='detalle_historial_correctivo'),
+    path('historial/preventivo/<int:id>/', views.detalle_historial_preventivo, name='detalle_historial_preventivo'),
+    path('historial/correctivo/<int:id>/', views.detalle_historial_correctivo, name='detalle_historial_correctivo'),
     
     # Recambios
     path('recambios/', views.buscar_recambios, name='buscar_recambios'),
+    path('recambios/multiple/', views.recambios_multiple, name='recambios_multiple'),
 ]
