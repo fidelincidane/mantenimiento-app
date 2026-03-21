@@ -247,6 +247,8 @@
                     playSound('finalizado.mp3');
                 } else if (text.includes('preventivo iniciado') || text.includes('correctivo iniciado') || text.includes('iniciado')) {
                     playSound('iniciar_correctivo.mp3');
+                } else if (text.includes('parado') && !text.includes('falta')) {
+                    playSound('parar.mp3');
                 }
             });
         });
