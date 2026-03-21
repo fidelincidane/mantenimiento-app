@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <h2 class="mb-4"><i class="bi bi-exclamation-triangle"></i> Nuevo Correctivo</h2>
+        <h2 class="mb-4"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Nuevo Correctivo</h2>
     </div>
 </div>
 
@@ -16,31 +16,31 @@
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">Automatismo</label>
+                        <label class="form-label"><i class="bi bi-gear-fill me-1"></i> Automatismo</label>
                         <div class="input-group">
-                            <span class="input-group-text">AUT</span>
-                            <input type="text" name="automatismo" class="form-control" placeholder="001" 
+                            <span class="input-group-text fw-bold">AUT</span>
+                            <input type="number" name="automatismo" class="form-control" placeholder="001" min="1" 
                                    value="{{ automatismo_preseleccionado.codigo|slice:'3:'|default:'' }}" required>
                         </div>
-                        <small class="text-muted">Se creará automáticamente si no existe</small>
+                        <small class="text-muted">Solo números. Se creará automáticamente si no existe</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Código PDS</label>
+                        <label class="form-label"><i class="bi bi-upc-scan me-1"></i> Código PDS</label>
                         <div class="input-group">
-                            <span class="input-group-text">PDS-</span>
+                            <span class="input-group-text fw-bold">PDS-</span>
                             <input type="text" name="codigo" class="form-control" placeholder="001" required>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Descripción de la avería</label>
+                        <label class="form-label"><i class="bi bi-chat-left-text-fill me-1"></i> Descripción de la avería</label>
                         <textarea name="descripcion" class="form-control" rows="3" placeholder="Describe la avería..." required></textarea>
                     </div>
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-danger btn-lg">
-                            <i class="bi bi-exclamation-triangle"></i> INICIAR CORRECTIVO
+                            <i class="bi bi-lightning-charge me-2"></i> INICIAR CORRECTIVO
                         </button>
                         <a href="{% url 'automatismos' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> Volver
+                            <i class="bi bi-arrow-left-circle me-2"></i> Volver al inicio
                         </a>
                     </div>
                 </form>

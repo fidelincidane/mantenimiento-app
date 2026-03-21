@@ -141,17 +141,17 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == '/automatismos/' or request.path == '/' %}active{% endif %}" href="{% url 'automatismos' %}">
-                            <i class="bi bi-house"></i> Home
+                            <i class="bi bi-house-door"></i> Inicio
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if '/historial' in request.path %}active{% endif %}" href="{% url 'historial' %}">
-                            <i class="bi bi-clock-history"></i> Historial
+                            <i class="bi bi-folder"></i> Historial
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if '/recambios' in request.path %}active{% endif %}" href="{% url 'buscar_recambios' %}">
-                            <i class="bi bi-tools"></i> Recambios
+                            <i class="bi bi-briefcase"></i> Recambios
                         </a>
                     </li>
                 </ul>
