@@ -9,14 +9,19 @@
 <div class="row mb-4">
     {% for p in preventivos_curso %}
     <div class="col-6 col-md-3 mb-2">
-        <div class="card text-decoration-none h-100">
+        <div class="card text-decoration-none h-100 {% if p.estado == 'parado' %}border-danger{% endif %}">
             <div class="card-body text-center d-flex flex-column">
                 <span class="badge bg-primary mb-1">Preventivo</span>
                 <h6 class="mb-1">{{ p.codigo }}</h6>
                 <small class="text-muted">{{ p.automatismo.codigo }}</small><br>
-                <span class="badge bg-{{ p.estado|badge_color }} mb-2">
+                <span class="badge bg-{{ p.estado|badge_color }} mb-1">
                     {{ p.get_estado_display }}
                 </span>
+                <div class="my-2">
+                    <span id="timer-prev-{{ p.id }}" class="fs-5 fw-bold {% if p.estado == 'parado' %}text-danger{% else %}text-success{% endif %}">
+                        --
+                    </span>
+                </div>
                 <div class="mt-auto">
                     <a href="{% url 'detalle_preventivo' p.id %}" class="btn btn-sm btn-primary w-100 mb-1">
                         <i class="bi bi-eye"></i> Ver
@@ -38,14 +43,19 @@
     
     {% for c in correctivos_curso %}
     <div class="col-6 col-md-3 mb-2">
-        <div class="card text-decoration-none h-100">
+        <div class="card text-decoration-none h-100 {% if c.estado == 'parado' %}border-danger{% endif %}">
             <div class="card-body text-center d-flex flex-column">
                 <span class="badge bg-danger mb-1">Correctivo</span>
                 <h6 class="mb-1">{{ c.codigo }}</h6>
                 <small class="text-muted">{{ c.automatismo.codigo }}</small><br>
-                <span class="badge bg-{{ c.estado|badge_color }} mb-2">
+                <span class="badge bg-{{ c.estado|badge_color }} mb-1">
                     {{ c.get_estado_display }}
                 </span>
+                <div class="my-2">
+                    <span id="timer-corr-{{ c.id }}" class="fs-5 fw-bold {% if c.estado == 'parado' %}text-danger{% else %}text-success{% endif %}">
+                        --
+                    </span>
+                </div>
                 <div class="mt-auto">
                     <a href="{% url 'detalle_correctivo' c.id %}" class="btn btn-sm btn-danger w-100 mb-1">
                         <i class="bi bi-eye"></i> Ver
@@ -83,4 +93,81 @@
         </a>
     </div>
 </div>
+
+<script>
+// Datos de preventivos desde Django
+const preventivosData = [
+    {% for p in preventivos_curso %}
+    {
+        id: {{ p.id }},
+        fecha_inicio: '{{ p.fecha_inicio|date:"Y-m-d" }}',
+        hora_inicio: '{{ p.hora_inicio|time:"H:i:s" }}',
+        tiempo_guardado: {% if p.tiempo %}{{ p.tiempo.total_seconds|floatformat:0 }}{% else %}0{% endif %},
+        estado: '{{ p.estado }}'
+    },
+    {% endfor %}
+];
+
+// Datos de correctivos desde Django
+const correctivosData = [
+    {% for c in correctivos_curso %}
+    {
+        id: {{ c.id }},
+        fecha_inicio: '{{ c.fecha_inicio|date:"Y-m-d" }}',
+        hora_inicio: '{{ c.hora_inicio|time:"H:i:s" }}',
+        tiempo_guardado: {% if c.tiempo %}{{ c.tiempo.total_seconds|floatformat:0 }}{% else %}0{% endif %},
+        estado: '{{ c.estado }}'
+    },
+    {% endfor %}
+];
+
+function formatTime(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function updateTimers() {
+    const now = new Date();
+    
+    // Actualizar preventivos
+    preventivosData.forEach(p => {
+        const element = document.getElementById(`timer-prev-${p.id}`);
+        if (!element) return;
+        
+        if (p.estado === 'parado') {
+            // Si está parado, mostrar tiempo guardado en rojo
+            element.textContent = formatTime(p.tiempo_guardado);
+            element.className = 'fs-5 fw-bold text-danger';
+        } else {
+            // Si está activo, calcular tiempo desde inicio
+            const inicio = new Date(`${p.fecha_inicio}T${p.hora_inicio}`);
+            const diff = (now - inicio) / 1000 + p.tiempo_guardado;
+            element.textContent = formatTime(diff);
+            element.className = 'fs-5 fw-bold text-success';
+        }
+    });
+    
+    // Actualizar correctivos
+    correctivosData.forEach(c => {
+        const element = document.getElementById(`timer-corr-${c.id}`);
+        if (!element) return;
+        
+        if (c.estado === 'parado') {
+            element.textContent = formatTime(c.tiempo_guardado);
+            element.className = 'fs-5 fw-bold text-danger';
+        } else {
+            const inicio = new Date(`${c.fecha_inicio}T${c.hora_inicio}`);
+            const diff = (now - inicio) / 1000 + c.tiempo_guardado;
+            element.textContent = formatTime(diff);
+            element.className = 'fs-5 fw-bold text-success';
+        }
+    });
+}
+
+// Iniciar timers
+updateTimers();
+setInterval(updateTimers, 1000);
+</script>
 {% endblock %}
