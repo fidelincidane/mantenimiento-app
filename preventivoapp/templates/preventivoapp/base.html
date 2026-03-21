@@ -231,26 +231,37 @@
     
         <script>
         function playSound(soundFile) {
-            const audio = new Audio('/static/sounds/' + soundFile);
-            audio.play().catch(e => console.log('Audio no disponible'));
+            try {
+                const audio = new Audio('/static/sounds/' + soundFile);
+                audio.volume = 0.8;
+                audio.play().then(() => {
+                    console.log('Sonido reproducido: ' + soundFile);
+                }).catch(e => {
+                    console.log('Audio no disponible: ' + soundFile);
+                });
+            } catch(e) {
+                console.log('Error al reproducir sonido');
+            }
         }
         
         // Reproducir sonido según el mensaje flash
         document.addEventListener('DOMContentLoaded', function() {
+            // Buscar mensajes de alerta
             const messages = document.querySelectorAll('.alert');
-            messages.forEach(function(msg) {
-                const text = msg.textContent.toLowerCase();
+            if (messages.length > 0) {
+                const text = messages[0].textContent.toLowerCase();
+                console.log('Mensaje detectado: ' + text);
                 
                 if (text.includes('falta de repuesto') || text.includes('falta de pieza') || text.includes('falta repuesto')) {
                     playSound('falta_repuesto.mp3');
                 } else if (text.includes('finalizado') || text.includes('terminado')) {
                     playSound('finalizado_torrente.mp3');
-                } else if (text.includes('preventivo iniciado') || text.includes('correctivo iniciado') || text.includes('iniciado')) {
+                } else if (text.includes('iniciado')) {
                     playSound('iniciar_correctivo.mp3');
-                } else if (text.includes('parado') && !text.includes('falta')) {
+                } else if (text.includes('parado')) {
                     playSound('parar.mp3');
                 }
-            });
+            }
         });
     </script>
 </body>
