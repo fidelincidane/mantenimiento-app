@@ -167,3 +167,33 @@ mantenimiento/
 - PDFs NO insertan fotos, solo muestran ENLACES clicables
 - Modelo Deficiencia y Recambio NO tienen campo `fecha`
 - Al hacer commit, usar `git pull origin main --rebase` si hay cambios remotos
+
+## Historial de Commits (para contexto)
+
+| Commit | Descripción |
+|--------|-------------|
+| `07a31ca` | Update AGENTS.md with current project state |
+| `3654560` | Add photo links to PDF |
+| `40fa7e6` | Remove fecha column from deficiencies and spares tables in PDFs |
+| `6308a91` | Fix PDF generation with proper error handling |
+| `00ca390` | Add better error handling to PDF generation |
+| `658120e` | Fix historial error 500, add hora en fechas, add multiselector recambios |
+| `efb5629` | Remove observations field from preventivo detail, simplify view |
+| `d1e2ad3` | Fix: error 500, auto-detección de repuestos múltiples, colores de badges |
+| `338539b` | Add: multi-select in historial for bulk delete and download PDFs |
+| `65c8bd4` | Add: auto-detect spare parts and deficiencies from description |
+| `3ff5e36` | Improve: complete PDF template with all fields |
+| `071907f` | Fix: template syntax error and add PDF buttons in historial |
+| `f2ea9df` | Fix: ALLOWED_HOSTS configuration for Render |
+
+## Comandos Git para Actualizar Contexto
+
+```bash
+# Ver últimos commits
+git log --oneline -20
+
+# Añadir commits al AGENTS.md (copiar tabla manualmente)
+
+# Hacer commit de AGENTS.md actualizado
+git add -A && git commit -m "Update AGENTS.md" && git push origin main
+```
