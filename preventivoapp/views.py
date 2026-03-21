@@ -694,7 +694,7 @@ def recambios_multiple(request):
 
 @login_required
 def generar_pdf_preventivo(request, id):
-    from django.http import HttpResponse, JsonResponse
+    from django.http import HttpResponse
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -708,169 +708,175 @@ def generar_pdf_preventivo(request, id):
     except Preventivo.DoesNotExist:
         return HttpResponse('Preventivo no encontrado', status=404)
     
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1.5*cm, leftMargin=1.5*cm, topMargin=1.5*cm, bottomMargin=1.5*cm)
+    try:
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1.5*cm, leftMargin=1.5*cm, topMargin=1.5*cm, bottomMargin=1.5*cm)
+        
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='TitleMain', alignment=TA_CENTER, fontSize=20, textColor=colors.white, spaceAfter=0, backColor=colors.HexColor('#0d6efd')))
+        styles.add(ParagraphStyle(name='TitleCode', alignment=TA_CENTER, fontSize=24, spaceAfter=20, textColor=colors.HexColor('#0d6efd')))
+        styles.add(ParagraphStyle(name='Section', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold'))
+        styles.add(ParagraphStyle(name='SectionObs', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold', backColor=colors.HexColor('#e7f1ff')))
+        
+        story = []
+        
+        # Titulo principal
+        title_table = Table([['HOJA DE PREVENTIVO']], colWidths=[17*cm])
+        title_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d6efd')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 16),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ]))
+        story.append(title_table)
+        story.append(Spacer(1, 10))
+        
+        # Codigo PDS
+        story.append(Paragraph(f"PDS {preventivo.codigo}", styles['TitleCode']))
+        story.append(Spacer(1, 10))
+        
+        # Informacion general
+        story.append(Paragraph("INFORMACIÓN GENERAL", styles['Section']))
+        
+        info_data = [
+            ['Automatismo:', preventivo.automatismo.codigo if preventivo.automatismo else '-'],
+            ['Técnico:', preventivo.tecnico.username if preventivo.tecnico else '-'],
+            ['Fecha Inicio:', preventivo.fecha_inicio.strftime('%d/%m/%Y') if preventivo.fecha_inicio else '-'],
+            ['Hora Inicio:', preventivo.hora_inicio.strftime('%H:%M') if preventivo.hora_inicio else '-'],
+            ['Fecha Fin:', preventivo.fecha_fin.strftime('%d/%m/%Y %H:%M') if preventivo.fecha_fin else '-'],
+            ['Estado:', preventivo.get_estado_display() if preventivo.estado else '-'],
+        ]
+        
+        info_table = Table(info_data, colWidths=[5*cm, 12*cm])
+        info_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e9ecef')),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        story.append(info_table)
+        story.append(Spacer(1, 10))
+        
+        # Tiempo Total
+        story.append(Paragraph("TIEMPO TOTAL", styles['Section']))
+        tiempo_text = '-'
+        if preventivo.tiempo:
+            total_seconds = int(preventivo.tiempo.total_seconds())
+            hours = total_seconds // 3600
+            minutes = (total_seconds % 3600) // 60
+            seconds = total_seconds % 60
+            tiempo_text = f'{hours}h {minutes}m {seconds}s'
+        
+        tiempo_table = Table([[tiempo_text]], colWidths=[17*cm])
+        tiempo_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 14),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ]))
+        story.append(tiempo_table)
+        story.append(Spacer(1, 10))
+        
+        # Descripcion
+        story.append(Paragraph("DESCRIPCIÓN DE LA AVERÍA", styles['SectionObs']))
+        obs_text = preventivo.observaciones if preventivo.observaciones else 'Sin descripción'
+        obs_table = Table([[obs_text]], colWidths=[17*cm], rowHeights=[80])
+        obs_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#e7f1ff')),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        story.append(obs_table)
+        story.append(Spacer(1, 10))
+        
+        # Deficiencias
+        story.append(Paragraph("DEFICIENCIAS", styles['Section']))
+        defic_data = [['Tipo', 'Severidad', 'Descripción', 'Fecha']]
+        for d in preventivo.deficiencias.all():
+            defic_data.append([
+                d.get_tipo_display() if d.tipo else '-',
+                d.get_severidad_display() if d.severidad else '-',
+                d.descripcion if d.descripcion else '-',
+                d.fecha.strftime('%d/%m/%Y %H:%M') if d.fecha else '-'
+            ])
+        if len(defic_data) == 1:
+            defic_data.append(['-', '-', 'Sin deficiencias registradas', '-'])
+        
+        defic_table = Table(defic_data, colWidths=[3*cm, 3*cm, 8*cm, 3*cm])
+        defic_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(defic_table)
+        story.append(Spacer(1, 10))
+        
+        # Recambios
+        story.append(Paragraph("REPUESTOS UTILIZADOS", styles['Section']))
+        recam_data = [['Nombre', 'Cantidad', 'Fecha']]
+        for r in preventivo.recambios.all():
+            recam_data.append([
+                r.nombre if r.nombre else '-',
+                str(r.cantidad) if r.cantidad else '-',
+                r.fecha.strftime('%d/%m/%Y %H:%M') if r.fecha else '-'
+            ])
+        if len(recam_data) == 1:
+            recam_data.append(['-', '-', '-'])
+        
+        recam_table = Table(recam_data, colWidths=[10*cm, 3*cm, 4*cm])
+        recam_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('LEFTPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(recam_table)
+        story.append(Spacer(1, 10))
+        
+        # Fotos
+        if preventivo.fotos.all():
+            story.append(Paragraph("FOTOGRAFÍAS", styles['Section']))
+            story.append(Paragraph(f"{preventivo.fotos.count()} foto(s) adjunta(s) - Ver en la aplicación", styles.get('Normal')))
+        
+        doc.build(story)
+        
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="preventivo_{preventivo.codigo}.pdf"'
+        return response
     
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name='TitleMain', alignment=TA_CENTER, fontSize=20, textColor=colors.white, spaceAfter=0, backColor=colors.HexColor('#0d6efd')))
-    styles.add(ParagraphStyle(name='TitleCode', alignment=TA_CENTER, fontSize=24, spaceAfter=20, textColor=colors.HexColor('#0d6efd')))
-    styles.add(ParagraphStyle(name='Section', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold'))
-    styles.add(ParagraphStyle(name='SectionObs', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold', backColor=colors.HexColor('#e7f1ff')))
-    
-    story = []
-    
-    # Titulo principal
-    title_table = Table([['HOJA DE PREVENTIVO']], colWidths=[17*cm])
-    title_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#0d6efd')),
-        ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 16),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-        ('TOPPADDING', (0, 0), (-1, -1), 10),
-    ]))
-    story.append(title_table)
-    story.append(Spacer(1, 10))
-    
-    # Codigo PDS
-    story.append(Paragraph(f"PDS {preventivo.codigo}", styles['TitleCode']))
-    story.append(Spacer(1, 10))
-    
-    # Informacion general - siempre mostrar todos los campos
-    story.append(Paragraph("INFORMACIÓN GENERAL", styles['Section']))
-    
-    # Crear tabla con todos los datos
-    info_data = [
-        ['Automatismo:', preventivo.automatismo.codigo if preventivo.automatismo else '-'],
-        ['Técnico:', preventivo.tecnico.username if preventivo.tecnico else '-'],
-        ['Fecha Inicio:', preventivo.fecha_inicio.strftime('%d/%m/%Y') if preventivo.fecha_inicio else '-'],
-        ['Hora Inicio:', preventivo.hora_inicio.strftime('%H:%M') if preventivo.hora_inicio else '-'],
-        ['Fecha Fin:', preventivo.fecha_fin.strftime('%d/%m/%Y %H:%M') if preventivo.fecha_fin else '-'],
-        ['Estado:', preventivo.get_estado_display() if preventivo.estado else '-'],
-    ]
-    
-    info_table = Table(info_data, colWidths=[5*cm, 12*cm])
-    info_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e9ecef')),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-    ]))
-    story.append(info_table)
-    story.append(Spacer(1, 10))
-    
-    # Tiempo Total
-    story.append(Paragraph("TIEMPO TOTAL", styles['Section']))
-    tiempo_text = '-'
-    if preventivo.tiempo:
-        total_seconds = int(preventivo.tiempo.total_seconds())
-        hours = total_seconds // 3600
-        minutes = (total_seconds % 3600) // 60
-        seconds = total_seconds % 60
-        tiempo_text = f'{hours}h {minutes}m {seconds}s'
-    
-    tiempo_table = Table([[tiempo_text]], colWidths=[17*cm])
-    tiempo_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f9fa')),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 14),
-        ('TOPPADDING', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-    ]))
-    story.append(tiempo_table)
-    story.append(Spacer(1, 10))
-    
-    # Descripcion de la averia
-    story.append(Paragraph("DESCRIPCIÓN DE LA AVERÍA", styles['SectionObs']))
-    obs_text = preventivo.observaciones if preventivo.observaciones else 'Sin descripción'
-    obs_table = Table([[obs_text]], colWidths=[17*cm], rowHeights=[80])
-    obs_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#e7f1ff')),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-    ]))
-    story.append(obs_table)
-    story.append(Spacer(1, 10))
-    
-    # Deficiencias
-    story.append(Paragraph("DEFICIENCIAS", styles['Section']))
-    defic_data = [['Tipo', 'Severidad', 'Descripción', 'Fecha']]
-    for d in preventivo.deficiencias.all():
-        defic_data.append([
-            d.get_tipo_display() if d.tipo else '-',
-            d.get_severidad_display() if d.severidad else '-',
-            d.descripcion if d.descripcion else '-',
-            d.fecha.strftime('%d/%m/%Y %H:%M') if d.fecha else '-'
-        ])
-    if len(defic_data) == 1:
-        defic_data.append(['-', '-', 'Sin deficiencias registradas', '-'])
-    
-    defic_table = Table(defic_data, colWidths=[3*cm, 3*cm, 8*cm, 3*cm])
-    defic_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-    ]))
-    story.append(defic_table)
-    story.append(Spacer(1, 10))
-    
-    # Recambios
-    story.append(Paragraph("REPUESTOS UTILIZADOS", styles['Section']))
-    recam_data = [['Nombre', 'Cantidad', 'Fecha']]
-    for r in preventivo.recambios.all():
-        recam_data.append([
-            r.nombre if r.nombre else '-',
-            str(r.cantidad) if r.cantidad else '-',
-            r.fecha.strftime('%d/%m/%Y %H:%M') if r.fecha else '-'
-        ])
-    if len(recam_data) == 1:
-        recam_data.append(['-', '-', '-'])
-    
-    recam_table = Table(recam_data, colWidths=[10*cm, 3*cm, 4*cm])
-    recam_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-    ]))
-    story.append(recam_table)
-    story.append(Spacer(1, 10))
-    
-    # Fotos
-    if preventivo.fotos.all():
-        story.append(Paragraph("FOTOGRAFÍAS", styles['Section']))
-        story.append(Paragraph(f"{preventivo.fotos.count()} foto(s) adjunta(s) - Ver en la aplicación", styles.get('Normal')))
-    
-    doc.build(story)
-    
-    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="preventivo_{preventivo.codigo}.pdf"'
-    return response
+    except Preventivo.DoesNotExist:
+        return HttpResponse('Preventivo no encontrado', status=404)
+    except Exception as e:
+        import traceback
+        return HttpResponse(f'Error generando PDF: {str(e)}<br><pre>{traceback.format_exc()}</pre>', status=500)
 
 
 @login_required
