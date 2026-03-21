@@ -859,10 +859,15 @@ def generar_pdf_preventivo(request, id):
         story.append(recam_table)
         story.append(Spacer(1, 10))
         
-        # Fotos
+        # Fotos con enlaces
         if preventivo.fotos.all():
             story.append(Paragraph("FOTOGRAFÍAS", styles['Section']))
-            story.append(Paragraph(f"{preventivo.fotos.count()} foto(s) adjunta(s) - Ver en la aplicación", styles.get('Normal')))
+            for i, foto in enumerate(preventivo.fotos.all(), 1):
+                foto_paragraph = Paragraph(
+                    f'Foto {i}: <link href="{foto.imagen}" color="blue"><u>{foto.imagen}</u></link>',
+                    styles.get('Normal')
+                )
+                story.append(foto_paragraph)
         
         doc.build(story)
         
@@ -1050,6 +1055,17 @@ def generar_pdf_correctivo(request, id):
         ('RIGHTPADDING', (0, 0), (-1, -1), 5),
     ]))
     story.append(recam_table)
+    story.append(Spacer(1, 10))
+    
+    # Fotos con enlaces
+    if correctivo.fotos.all():
+        story.append(Paragraph("FOTOGRAFÍAS", styles['Section']))
+        for i, foto in enumerate(correctivo.fotos.all(), 1):
+            foto_paragraph = Paragraph(
+                f'Foto {i}: <link href="{foto.imagen}" color="blue"><u>{foto.imagen}</u></link>',
+                styles.get('Normal')
+            )
+            story.append(foto_paragraph)
     
     doc.build(story)
     
