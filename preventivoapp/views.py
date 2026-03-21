@@ -694,7 +694,7 @@ def recambios_multiple(request):
 
 @login_required
 def generar_pdf_preventivo(request, id):
-    from django.http import HttpResponse
+    from django.http import HttpResponse, JsonResponse
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -703,7 +703,10 @@ def generar_pdf_preventivo(request, id):
     from reportlab.lib.enums import TA_CENTER, TA_LEFT
     from io import BytesIO
     
-    preventivo = get_object_or_404(Preventivo, id=id)
+    try:
+        preventivo = Preventivo.objects.get(id=id)
+    except Preventivo.DoesNotExist:
+        return HttpResponse('Preventivo no encontrado', status=404)
     
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=1.5*cm, leftMargin=1.5*cm, topMargin=1.5*cm, bottomMargin=1.5*cm)
