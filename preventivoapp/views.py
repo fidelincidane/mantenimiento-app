@@ -806,18 +806,17 @@ def generar_pdf_preventivo(request, id):
         
         # Deficiencias
         story.append(Paragraph("DEFICIENCIAS", styles['Section']))
-        defic_data = [['Tipo', 'Severidad', 'Descripción', 'Fecha']]
+        defic_data = [['Tipo', 'Severidad', 'Descripción']]
         for d in preventivo.deficiencias.all():
             defic_data.append([
                 d.get_tipo_display() if d.tipo else '-',
                 d.get_severidad_display() if d.severidad else '-',
-                d.descripcion if d.descripcion else '-',
-                d.fecha.strftime('%d/%m/%Y %H:%M') if d.fecha else '-'
+                d.descripcion if d.descripcion else '-'
             ])
         if len(defic_data) == 1:
-            defic_data.append(['-', '-', 'Sin deficiencias registradas', '-'])
+            defic_data.append(['-', '-', 'Sin deficiencias registradas'])
         
-        defic_table = Table(defic_data, colWidths=[3*cm, 3*cm, 8*cm, 3*cm])
+        defic_table = Table(defic_data, colWidths=[3*cm, 3*cm, 11*cm])
         defic_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -835,17 +834,16 @@ def generar_pdf_preventivo(request, id):
         
         # Recambios
         story.append(Paragraph("REPUESTOS UTILIZADOS", styles['Section']))
-        recam_data = [['Nombre', 'Cantidad', 'Fecha']]
+        recam_data = [['Nombre', 'Cantidad']]
         for r in preventivo.recambios.all():
             recam_data.append([
                 r.nombre if r.nombre else '-',
-                str(r.cantidad) if r.cantidad else '-',
-                r.fecha.strftime('%d/%m/%Y %H:%M') if r.fecha else '-'
+                str(r.cantidad) if r.cantidad else '-'
             ])
         if len(recam_data) == 1:
-            recam_data.append(['-', '-', '-'])
+            recam_data.append(['-', '-'])
         
-        recam_table = Table(recam_data, colWidths=[10*cm, 3*cm, 4*cm])
+        recam_table = Table(recam_data, colWidths=[12*cm, 5*cm])
         recam_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0d6efd')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -1001,18 +999,17 @@ def generar_pdf_correctivo(request, id):
     
     # Deficiencias
     story.append(Paragraph("DEFICIENCIAS", styles['Section']))
-    defic_data = [['Tipo', 'Severidad', 'Descripción', 'Fecha']]
+    defic_data = [['Tipo', 'Severidad', 'Descripción']]
     for d in correctivo.deficiencias.all():
         defic_data.append([
             d.get_tipo_display() if d.tipo else '-',
             d.get_severidad_display() if d.severidad else '-',
-            d.descripcion if d.descripcion else '-',
-            d.fecha.strftime('%d/%m/%Y %H:%M') if d.fecha else '-'
+            d.descripcion if d.descripcion else '-'
         ])
     if len(defic_data) == 1:
-        defic_data.append(['-', '-', 'Sin deficiencias registradas', '-'])
+        defic_data.append(['-', '-', 'Sin deficiencias registradas'])
     
-    defic_table = Table(defic_data, colWidths=[3*cm, 3*cm, 8*cm, 3*cm])
+    defic_table = Table(defic_data, colWidths=[3*cm, 3*cm, 11*cm])
     defic_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -1030,17 +1027,16 @@ def generar_pdf_correctivo(request, id):
     
     # Recambios
     story.append(Paragraph("REPUESTOS UTILIZADOS", styles['Section']))
-    recam_data = [['Nombre', 'Cantidad', 'Fecha']]
+    recam_data = [['Nombre', 'Cantidad']]
     for r in correctivo.recambios.all():
         recam_data.append([
             r.nombre if r.nombre else '-',
-            str(r.cantidad) if r.cantidad else '-',
-            r.fecha.strftime('%d/%m/%Y %H:%M') if r.fecha else '-'
+            str(r.cantidad) if r.cantidad else '-'
         ])
     if len(recam_data) == 1:
-        recam_data.append(['-', '-', '-'])
+        recam_data.append(['-', '-'])
     
-    recam_table = Table(recam_data, colWidths=[10*cm, 3*cm, 4*cm])
+    recam_table = Table(recam_data, colWidths=[12*cm, 5*cm])
     recam_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#dc3545')),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
