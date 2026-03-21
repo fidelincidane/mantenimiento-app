@@ -120,58 +120,65 @@ def detalle_preventivo(request, id):
             # Analizar texto para detectar repuestos automáticamente
             texto = observaciones.lower()
             
-            # Buscar patrones como "rodamiento 6205", "cojinete 123", etc.
-            patrones = [
-                r'(\d+)\s*rodamientos?\s+(\w+)',  # "2 rodamientos 6205" o "2 rodamientos"
-                r'rodamiento[s]?\s+(\w+)',  # "rodamiento 6205"
-                r'cojinete[s]?\s+(\w+)',  # "cojinete 123"
-                r'junta[s]?\s+(\w+)',  # "junta tórica"
-                r'bolsa\s+(\w+)',  # "bolsa filtro"
-                r'filtro\s+(\w+)',  # "filtro aire"
-                r'bomba\s+(\w+)',  # "bomba aceite"
-                r'correa\s+(\w+)',  # "correa trapezoidal"
-                r'cadena\s+(\w+)',  # "cadena 08b"
-                r'pinon\s+(\w+)',  # "piñón 15"
-                r'rueda\s+(\w+)',  # "rueda dentada"
-                r'sello\s+(\w+)',  # "sello mecánico"
-                r'empaquetadura\s+(\w+)',  # "empaquetadura"
+            # Lista de tipos de repuestos
+            tipos_repuestos = 'rodamiento|cojinete|junta|filtro|bomba|correa|cadena|sello|empaquetadura|piñón|rueda|rodillo|polea|tensor|reten|casquillo|ruleman|buje|arandela|brida|tornillo|perno|enchufe|conector|sensor|termico|presostato|contactor|relé|electroválvula|electroválvula|bobina|motor|ventilador|turbina|compresor|válvula|manómetro|caudalímetro'
+            
+            # Patrones para detectar repuestos con cantidad
+            patrones_cantidad = [
+                (rf'(\d+)\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 2),  # "2 rodamientos 6205"
+                (rf'se\s+cambian?\s+(\d+)\s+{tipos_repuestos}[es]?', 1),  # "se cambian 2 rodamientos"
+                (rf'cambiados?\s+(\d+)\s+{tipos_repuestos}[es]?', 1),  # "cambiados 2 rodamientos"
             ]
             
-            # Detectar cantidad antes del repuesto
-            cantidad_match = re.search(r'(\d+)\s+(?:rodamiento|cojinete|junta|bolsa|filtro|bomba|correa|cadena|piñón|rueda|sello|empaquetadura)', texto)
-            cantidad = int(cantidad_match.group(1)) if cantidad_match else 1
+            # Patrones para detectar repuestos sin cantidad
+            patrones_sin_cantidad = [
+                (rf'cambiado\s+por\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "cambiado por rodamiento 6205"
+                (rf'sustituido\s+por\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "sustituido por filtro"
+                (rf'nuevo\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "nuevo rodamiento 6205"
+                (rf'{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "rodamiento 6205" (genérico)
+            ]
             
-            # Buscar el repuesto
-            for patron in patrones:
+            repuestos_detectados = []
+            
+            # Primero buscar con cantidad
+            for patron, grupo_nombre in patrones_cantidad:
                 match = re.search(patron, texto)
                 if match:
-                    if len(match.groups()) == 2:
-                        # Formato: "2 rodamientos 6205"
-                        cantidad = int(match.group(1))
-                        nombre_repuesto = match.group(2).title()
-                    else:
-                        # Formato: "rodamiento 6205"
-                        nombre_repuesto = match.group(1).title()
-                    
-                    # Convertir a singular
-                    nombre_singular = nombre_repuesto
-                    if nombre_repuesto.endswith('s'):
-                        nombre_singular = nombre_repuesto[:-1]
-                    if nombre_repuesto.endswith('es'):
-                        nombre_singular = nombre_repuesto[:-2]
-                    
-                    # Capitalizar correctamente
-                    nombre_final = nombre_repuesto
-                    
-                    # Crear repuesto si no existe ya para este preventivo
-                    existe = Recambio.objects.filter(
+                    cantidad = int(match.group(1))
+                    nombre = match.group(grupo_nombre).strip()
+                    # Capitalizar
+                    nombre_final = nombre.title()
+                    repuestos_detectados.append((nombre_final, cantidad))
+                    break
+            
+            # Si no se encontró con cantidad, buscar sin cantidad
+            if not repuestos_detectados:
+                for patron, grupo_nombre in patrones_sin_cantidad:
+                    match = re.search(patron, texto)
+                    if match:
+                        nombre = match.group(grupo_nombre).strip()
+                        # Capitalizar
+                        nombre_final = nombre.title()
+                        repuestos_detectados.append((nombre_final, 1))
+                        break
+            
+            # Crear los repuestos detectados
+            for nombre_final, cantidad in repuestos_detectados:
+                # Quitar plurales
+                if nombre_final.endswith('es'):
+                    nombre_final = nombre_final[:-2]
+                elif nombre_final.endswith('s'):
+                    nombre_final = nombre_final[:-1]
+                
+                # Crear repuesto si no existe
+                existe = Recambio.objects.filter(
+                    preventivo=preventivo,
+                    nombre__icontains=nombre_final
+                ).exists()
+                
+                if not existe and len(nombre_final) > 2:
+                    Recambio.objects.create(
                         preventivo=preventivo,
-                        nombre__icontains=nombre_final
-                    ).exists()
-                    
-                    if not existe:
-                        Recambio.objects.create(
-                            preventivo=preventivo,
                             nombre=nombre_final,
                             cantidad=cantidad
                         )
