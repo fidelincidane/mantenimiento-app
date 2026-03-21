@@ -4,6 +4,7 @@ register = template.Library()
 
 @register.filter
 def duration(td):
+    # Convierte timedelta a formato legible (1d 2h 30m)
     if not td:
         return "-"
     total_seconds = int(td.total_seconds())
