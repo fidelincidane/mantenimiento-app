@@ -105,6 +105,9 @@ def crear_preventivo(request):
 
 @login_required
 def detalle_preventivo(request, id):
+    from .models import Deficiencia, Recambio
+    import re
+    
     preventivo = get_object_or_404(Preventivo, id=id)
     
     if request.method == 'POST':
@@ -113,6 +116,111 @@ def detalle_preventivo(request, id):
             preventivo.observaciones = observaciones
             preventivo.estado = 'en_progreso'
             preventivo.save()
+            
+            # Analizar texto para detectar repuestos automáticamente
+            texto = observaciones.lower()
+            
+            # Buscar patrones como "rodamiento 6205", "cojinete 123", etc.
+            patrones = [
+                r'(\d+)\s*rodamientos?\s+(\w+)',  # "2 rodamientos 6205" o "2 rodamientos"
+                r'rodamiento[s]?\s+(\w+)',  # "rodamiento 6205"
+                r'cojinete[s]?\s+(\w+)',  # "cojinete 123"
+                r'junta[s]?\s+(\w+)',  # "junta tórica"
+                r'bolsa\s+(\w+)',  # "bolsa filtro"
+                r'filtro\s+(\w+)',  # "filtro aire"
+                r'bomba\s+(\w+)',  # "bomba aceite"
+                r'correa\s+(\w+)',  # "correa trapezoidal"
+                r'cadena\s+(\w+)',  # "cadena 08b"
+                r'pinon\s+(\w+)',  # "piñón 15"
+                r'rueda\s+(\w+)',  # "rueda dentada"
+                r'sello\s+(\w+)',  # "sello mecánico"
+                r'empaquetadura\s+(\w+)',  # "empaquetadura"
+            ]
+            
+            # Detectar cantidad antes del repuesto
+            cantidad_match = re.search(r'(\d+)\s+(?:rodamiento|cojinete|junta|bolsa|filtro|bomba|correa|cadena|piñón|rueda|sello|empaquetadura)', texto)
+            cantidad = int(cantidad_match.group(1)) if cantidad_match else 1
+            
+            # Buscar el repuesto
+            for patron in patrones:
+                match = re.search(patron, texto)
+                if match:
+                    if len(match.groups()) == 2:
+                        # Formato: "2 rodamientos 6205"
+                        cantidad = int(match.group(1))
+                        nombre_repuesto = match.group(2).title()
+                    else:
+                        # Formato: "rodamiento 6205"
+                        nombre_repuesto = match.group(1).title()
+                    
+                    # Convertir a singular
+                    nombre_singular = nombre_repuesto
+                    if nombre_repuesto.endswith('s'):
+                        nombre_singular = nombre_repuesto[:-1]
+                    if nombre_repuesto.endswith('es'):
+                        nombre_singular = nombre_repuesto[:-2]
+                    
+                    # Capitalizar correctamente
+                    nombre_final = nombre_repuesto
+                    
+                    # Crear repuesto si no existe ya para este preventivo
+                    existe = Recambio.objects.filter(
+                        preventivo=preventivo,
+                        nombre__icontains=nombre_final
+                    ).exists()
+                    
+                    if not existe:
+                        Recambio.objects.create(
+                            preventivo=preventivo,
+                            nombre=nombre_final,
+                            cantidad=cantidad
+                        )
+                    break
+            
+            # Detectar deficiencias - palabras clave que indican problemas
+            deficiencias_palabras = {
+                'roto': 'Roto/a',
+                'rota': 'Rota/a',
+                'rotos': 'Roto/a',
+                'rotas': 'Rota/a',
+                'averiado': 'Averiado/a',
+                'averiada': 'Averiada/a',
+                'deteriorado': 'Deteriorado/a',
+                'deteriorada': 'Deteriorada/a',
+                'gastado': 'Gastado/a',
+                'gastada': 'Gastada/a',
+                'bloqueado': 'Bloqueado/a',
+                'bloqueada': 'Bloqueada/a',
+                'fugando': 'Fuga',
+                'fuga': 'Fuga',
+                'golpeado': 'Golpeado/a',
+                'golpeada': 'Golpeada/a',
+                'desgastado': 'Desgastado/a',
+                'desgastada': 'Desgastada/a',
+            }
+            
+            for palabra, tipo_def in deficiencias_palabras.items():
+                if palabra in texto:
+                    # Extraer la frase completa
+                    frase_match = re.search(rf'[^.]*{palabra}[^.]*', observaciones, re.IGNORECASE)
+                    if frase_match:
+                        desc_def = frase_match.group().strip()
+                        # Solo crear si tiene algo sustancial
+                        if len(desc_def) > 5:
+                            existe_def = Deficiencia.objects.filter(
+                                preventivo=preventivo,
+                                descripcion__icontains=desc_def[:30]
+                            ).exists()
+                            
+                            if not existe_def:
+                                Deficiencia.objects.create(
+                                    preventivo=preventivo,
+                                    descripcion=desc_def,
+                                    tipo='otra',
+                                    severidad='media'
+                                )
+                    break
+            
             messages.success(request, 'Observaciones guardadas')
     
     return render(request, 'preventivoapp/detalle_preventivo.html', {'preventivo': preventivo})
