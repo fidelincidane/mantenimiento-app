@@ -9,30 +9,36 @@
 <div class="row mb-4">
     {% for p in preventivos_curso %}
     <div class="col-6 col-md-3 mb-2">
-        <div class="card text-decoration-none h-100 {% if p.estado == 'parado' %}border-danger{% endif %}">
+        <div class="card text-decoration-none h-100 {% if p.estado == 'parado' %}border-danger border-3{% endif %}">
             <div class="card-body text-center d-flex flex-column">
-                <span class="badge bg-primary mb-1">Preventivo</span>
-                <h6 class="mb-1">{{ p.codigo }}</h6>
-                <small class="text-muted">{{ p.automatismo.codigo }}</small><br>
+                <div class="mb-2">
+                    <i class="bi bi-shield-check text-primary fs-1"></i>
+                </div>
                 <span class="badge bg-{{ p.estado|badge_color }} mb-1">
-                    {{ p.get_estado_display }}
+                    <i class="bi bi-clipboard-check"></i> Preventivo
                 </span>
+                <h5 class="mb-1 fw-bold">{{ p.codigo }}</h5>
+                <small class="text-muted">
+                    <i class="bi bi-gear"></i> {{ p.automatismo.codigo }}
+                </small>
+                <hr class="my-2">
                 <div class="my-2">
+                    <i class="bi bi-clock-history me-1"></i>
                     <span id="timer-prev-{{ p.id }}" class="fs-5 fw-bold {% if p.estado == 'parado' %}text-danger{% else %}text-success{% endif %}">
                         --
                     </span>
                 </div>
                 <div class="mt-auto">
-                    <a href="{% url 'detalle_preventivo' p.id %}" class="btn btn-sm btn-primary w-100 mb-1">
-                        <i class="bi bi-eye"></i> Ver
+                    <a href="{% url 'detalle_preventivo' p.id %}" class="btn btn-sm btn-outline-primary w-100 mb-1">
+                        <i class="bi bi-search"></i> Ver detalle
                     </a>
                     {% if p.estado == 'parado' %}
                     <a href="{% url 'reanudar_preventivo' p.id %}" class="btn btn-sm btn-success w-100 mb-1">
-                        <i class="bi bi-play-fill"></i> Reanudar
+                        <i class="bi bi-play-circle"></i> Reanudar
                     </a>
                     {% elif p.estado != 'finalizado' %}
-                    <a href="{% url 'parar_preventivo' p.id %}" class="btn btn-sm btn-warning w-100" onclick="return confirm('¿Parar preventivo?')">
-                        <i class="bi bi-pause-fill"></i> Parar
+                    <a href="{% url 'parar_preventivo' p.id %}" class="btn btn-sm btn-outline-warning w-100" onclick="return confirm('¿Parar preventivo?')">
+                        <i class="bi bi-pause-circle"></i> Parar
                     </a>
                     {% endif %}
                 </div>
@@ -43,30 +49,36 @@
     
     {% for c in correctivos_curso %}
     <div class="col-6 col-md-3 mb-2">
-        <div class="card text-decoration-none h-100 {% if c.estado == 'parado' %}border-danger{% endif %}">
+        <div class="card text-decoration-none h-100 {% if c.estado == 'parado' %}border-danger border-3{% endif %}">
             <div class="card-body text-center d-flex flex-column">
-                <span class="badge bg-danger mb-1">Correctivo</span>
-                <h6 class="mb-1">{{ c.codigo }}</h6>
-                <small class="text-muted">{{ c.automatismo.codigo }}</small><br>
-                <span class="badge bg-{{ c.estado|badge_color }} mb-1">
-                    {{ c.get_estado_display }}
+                <div class="mb-2">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-1"></i>
+                </div>
+                <span class="badge bg-danger mb-1">
+                    <i class="bi bi-lightning"></i> Correctivo
                 </span>
+                <h5 class="mb-1 fw-bold">{{ c.codigo }}</h5>
+                <small class="text-muted">
+                    <i class="bi bi-gear"></i> {{ c.automatismo.codigo }}
+                </small>
+                <hr class="my-2">
                 <div class="my-2">
+                    <i class="bi bi-clock-history me-1"></i>
                     <span id="timer-corr-{{ c.id }}" class="fs-5 fw-bold {% if c.estado == 'parado' %}text-danger{% else %}text-success{% endif %}">
                         --
                     </span>
                 </div>
                 <div class="mt-auto">
-                    <a href="{% url 'detalle_correctivo' c.id %}" class="btn btn-sm btn-danger w-100 mb-1">
-                        <i class="bi bi-eye"></i> Ver
+                    <a href="{% url 'detalle_correctivo' c.id %}" class="btn btn-sm btn-outline-danger w-100 mb-1">
+                        <i class="bi bi-search"></i> Ver detalle
                     </a>
                     {% if c.estado == 'parado' %}
                     <a href="{% url 'reanudar_correctivo' c.id %}" class="btn btn-sm btn-success w-100 mb-1">
-                        <i class="bi bi-play-fill"></i> Reanudar
+                        <i class="bi bi-play-circle"></i> Reanudar
                     </a>
                     {% elif c.estado != 'finalizado' %}
-                    <a href="{% url 'parar_correctivo' c.id %}" class="btn btn-sm btn-warning w-100" onclick="return confirm('¿Parar correctivo?')">
-                        <i class="bi bi-pause-fill"></i> Parar
+                    <a href="{% url 'parar_correctivo' c.id %}" class="btn btn-sm btn-outline-warning w-100" onclick="return confirm('¿Parar correctivo?')">
+                        <i class="bi bi-pause-circle"></i> Parar
                     </a>
                     {% endif %}
                 </div>
@@ -76,20 +88,21 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="alert alert-info text-center">
+<div class="alert alert-secondary text-center py-4">
+    <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
     No hay preventivos o correctivos iniciados o parados
 </div>
 {% endif %}
 
-<div class="row mb-4">
+<div class="row mb-4 mt-5">
     <div class="col-md-6">
-        <a href="{% url 'crear_preventivo' %}" class="btn btn-primary btn-lg w-100 py-4">
-            <i class="bi bi-check-circle"></i> NUEVO PREVENTIVO
+        <a href="{% url 'crear_preventivo' %}" class="btn btn-primary btn-lg w-100 py-4 shadow">
+            <i class="bi bi-plus-circle-fill me-2"></i> NUEVO PREVENTIVO
         </a>
     </div>
     <div class="col-md-6 mt-3 mt-md-0">
-        <a href="{% url 'crear_correctivo' %}" class="btn btn-danger btn-lg w-100 py-4">
-            <i class="bi bi-exclamation-triangle"></i> NUEVO CORRECTIVO
+        <a href="{% url 'crear_correctivo' %}" class="btn btn-danger btn-lg w-100 py-4 shadow">
+            <i class="bi bi-exclamation-circle-fill me-2"></i> NUEVO CORRECTIVO
         </a>
     </div>
 </div>
