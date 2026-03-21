@@ -177,57 +177,47 @@ def detalle_preventivo(request, id):
                         )
                     break
             
-            # Detectar deficiencias - palabras clave que indican problemas
-            deficiencias_palabras = {
-                'roto': 'Roto/a',
-                'rota': 'Rota/a',
-                'rotos': 'Roto/a',
-                'rotas': 'Rota/a',
-                'averiado': 'Averiado/a',
-                'averiada': 'Averiada/a',
-                'deteriorado': 'Deteriorado/a',
-                'deteriorada': 'Deteriorada/a',
-                'gastado': 'Gastado/a',
-                'gastada': 'Gastada/a',
-                'bloqueado': 'Bloqueado/a',
-                'bloqueada': 'Bloqueada/a',
-                'fugando': 'Fuga',
-                'fuga': 'Fuga',
-                'golpeado': 'Golpeado/a',
-                'golpeada': 'Golpeada/a',
-                'desgastado': 'Desgastado/a',
-                'desgastada': 'Desgastada/a',
-                'estropeado': 'Estropeado/a',
-                'estropeada': 'Estropeada/a',
-                'funcionamiento': 'Mal funcionamiento',
-                'defectuoso': 'Defectuoso/a',
-                'defectuosa': 'Defectuosa/a',
-                'detectado': 'Detectado/a',
-                'detectada': 'Detectada/a',
-                'mal': 'Anomalía detectada',
-            }
+            # Detectar deficiencias - extraer texto completo después de palabras clave
+            deficiencias_patrones = [
+                (r'ha[sy]?\s+detectad[oa]?\s+(.{10,100}?)(?:\.|$)', 'Detectado'),
+                (r'se\s+ha\s+detectad[oa]?\s+(.{10,100}?)(?:\.|$)', 'Detectado'),
+                (r'mal\s+funcionamiento\s+(.{10,100}?)(?:\.|$)', 'Mal funcionamiento'),
+                (r'estropead[oa]?\s+(.{10,100}?)(?:\.|$)', 'Estropeado/a'),
+                (r'defectuos[oa]?\s+(.{10,100}?)(?:\.|$)', 'Defectuoso/a'),
+                (r'no\s+funciona\s+(.{10,100}?)(?:\.|$)', 'No funciona'),
+                (r'no\s+va\s+(.{10,100}?)(?:\.|$)', 'No va'),
+                (r'no\s+responde\s+(.{10,100}?)(?:\.|$)', 'No responde'),
+                (r'roto\s+(.{10,100}?)(?:\.|$)', 'Roto/a'),
+                (r'rota\s+(.{10,100}?)(?:\.|$)', 'Rota/a'),
+                (r'averiad[oa]?\s+(.{10,100}?)(?:\.|$)', 'Averiado/a'),
+                (r'deteriorad[oa]?\s+(.{10,100}?)(?:\.|$)', 'Deteriorado/a'),
+                (r'gastad[oa]?\s+(.{10,100}?)(?:\.|$)', 'Gastado/a'),
+                (r'bloquead[oa]?\s+(.{10,100}?)(?:\.|$)', 'Bloqueado/a'),
+                (r'fuga\s+(.{10,100}?)(?:\.|$)', 'Fuga'),
+            ]
             
-            for palabra, tipo_def in deficiencias_palabras.items():
-                if palabra in texto:
-                    # Extraer la frase completa
-                    frase_match = re.search(rf'[^.]*{palabra}[^.]*', observaciones, re.IGNORECASE)
-                    if frase_match:
-                        desc_def = frase_match.group().strip()
-                        # Solo crear si tiene algo sustancial
-                        if len(desc_def) > 5:
-                            existe_def = Deficiencia.objects.filter(
+            # Buscar deficiencias con patrones mejorados
+            for patron, tipo_def in deficiencias_patrones:
+                match = re.search(patron, observaciones, re.IGNORECASE)
+                if match:
+                    desc_def = match.group(1).strip()
+                    # Solo crear si tiene algo sustancial
+                    if len(desc_def) > 5:
+                        # Agregar el tipo al inicio si no está
+                        descripcion_final = f"{tipo_def}: {desc_def}"
+                        
+                        existe_def = Deficiencia.objects.filter(
+                            preventivo=preventivo,
+                            descripcion__icontains=desc_def[:30]
+                        ).exists()
+                        
+                        if not existe_def:
+                            Deficiencia.objects.create(
                                 preventivo=preventivo,
-                                descripcion__icontains=desc_def[:30]
-                            ).exists()
-                            
-                            if not existe_def:
-                                Deficiencia.objects.create(
-                                    preventivo=preventivo,
-                                    descripcion=desc_def,
-                                    tipo='otra',
-                                    severidad='media'
-                                )
-                    break
+                                descripcion=descripcion_final,
+                                tipo='otra',
+                                severidad='media'
+                            )
             
             messages.success(request, 'Observaciones guardadas')
     
