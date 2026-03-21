@@ -24,3 +24,14 @@ def duration(td):
         parts.append(f"{seconds}s")
     
     return " ".join(parts)
+
+@register.filter
+def badge_color(estado):
+    """Mapea estado a color de badge Bootstrap"""
+    colores = {
+        'iniciado': 'primary',
+        'en_progreso': 'info',
+        'parado': 'warning',
+        'finalizado': 'success',
+    }
+    return colores.get(estado, 'secondary')

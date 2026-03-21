@@ -1,4 +1,5 @@
 {% extends 'preventivoapp/base.html' %}
+{% load extras %}
 
 {% block title %}Inicio{% endblock %}
 
@@ -13,7 +14,7 @@
                 <span class="badge bg-primary mb-1">Preventivo</span>
                 <h6 class="mb-1">{{ p.codigo }}</h6>
                 <small class="text-muted">{{ p.automatismo.codigo }}</small><br>
-                <span class="badge bg-{% if p.estado == 'parado' %}warning{% else %}info{% endif %}">
+                <span class="badge bg-{{ p.estado|badge_color }}">
                     {{ p.get_estado_display }}
                 </span>
             </div>
@@ -28,7 +29,7 @@
                 <span class="badge bg-danger mb-1">Correctivo</span>
                 <h6 class="mb-1">{{ c.codigo }}</h6>
                 <small class="text-muted">{{ c.automatismo.codigo }}</small><br>
-                <span class="badge bg-{% if c.estado == 'parado' %}warning{% else %}info{% endif %}">
+                <span class="badge bg-{{ c.estado|badge_color }}">
                     {{ c.get_estado_display }}
                 </span>
             </div>

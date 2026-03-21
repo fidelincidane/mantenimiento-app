@@ -208,10 +208,9 @@ def detalle_preventivo(request, id):
                 if not existe and len(nombre_final) > 2:
                     Recambio.objects.create(
                         preventivo=preventivo,
-                            nombre=nombre_final,
-                            cantidad=cantidad
-                        )
-                    break
+                        nombre=nombre_final,
+                        cantidad=cantidad
+                    )
             
             # Detectar deficiencias - extraer texto completo después de palabras clave
             deficiencias_patrones = [
