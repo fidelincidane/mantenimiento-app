@@ -9,7 +9,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Clave secreta y configuración
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-9#nl0d$o@^=cidl-p#4rpmeehezlow)*)+t6c%d_-=)7&(g50p')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h.strip()]
 
