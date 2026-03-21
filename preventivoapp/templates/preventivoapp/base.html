@@ -8,11 +8,122 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
     <style>
         body { background-color: #f8f9fa; }
-        .card { border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn { border-radius: 8px; }
+        .card { border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+        .btn { border-radius: 8px; transition: all 0.3s ease; }
         .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .table { background: white; border-radius: 10px; }
         .nav-link.active { background-color: rgba(255,255,255,0.2) !important; font-weight: bold; }
+        
+        /* Transiciones para tarjetas */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        /* Transiciones para botones */
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Botón primario mejorado */
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+        }
+        
+        /* Botón peligro mejorado */
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+            border-color: #bb2d3b;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+        
+        /* Botón éxito mejorado */
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #157347;
+            box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4);
+        }
+        
+        /* Botón warning mejorado */
+        .btn-warning:hover, .btn-outline-warning:hover {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+        }
+        
+        /* Botón outline mejorado */
+        .btn-outline-primary:hover {
+            background-color: #0d6efd;
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-outline-warning:hover {
+            background-color: #ffc107;
+            color: #000;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+        
+        /* Animación para el reloj */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .text-success {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Transición suave para badges */
+        .badge {
+            transition: all 0.3s ease;
+        }
+        
+        /* Hover para cards de nav */
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+        
+        /* Animación de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        /* Transición para alertas */
+        .alert {
+            transition: all 0.3s ease;
+        }
+        
+        /* Efecto ripple simple */
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
