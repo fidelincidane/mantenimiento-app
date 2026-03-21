@@ -545,6 +545,7 @@ def generar_pdf_preventivo(request, id):
     styles.add(ParagraphStyle(name='TitleMain', alignment=TA_CENTER, fontSize=20, textColor=colors.white, spaceAfter=0, backColor=colors.HexColor('#0d6efd')))
     styles.add(ParagraphStyle(name='TitleCode', alignment=TA_CENTER, fontSize=24, spaceAfter=20, textColor=colors.HexColor('#0d6efd')))
     styles.add(ParagraphStyle(name='Section', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold'))
+    styles.add(ParagraphStyle(name='SectionObs', fontSize=12, textColor=colors.HexColor('#0d6efd'), spaceBefore=10, spaceAfter=5, fontName='Helvetica-Bold', backColor=colors.HexColor('#e7f1ff')))
     
     story = []
     
@@ -617,12 +618,12 @@ def generar_pdf_preventivo(request, id):
     story.append(tiempo_table)
     story.append(Spacer(1, 10))
     
-    # Observaciones
-    story.append(Paragraph("OBSERVACIONES / ANOMALÍAS", styles['Section']))
-    obs_text = preventivo.observaciones if preventivo.observaciones else 'Sin observaciones'
-    obs_table = Table([[obs_text]], colWidths=[17*cm], rowHeights=[60])
+    # Descripcion de la averia
+    story.append(Paragraph("DESCRIPCIÓN DE LA AVERÍA", styles['SectionObs']))
+    obs_text = preventivo.observaciones if preventivo.observaciones else 'Sin descripción'
+    obs_table = Table([[obs_text]], colWidths=[17*cm], rowHeights=[80])
     obs_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#e7f1ff')),
         ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#dee2e6')),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
