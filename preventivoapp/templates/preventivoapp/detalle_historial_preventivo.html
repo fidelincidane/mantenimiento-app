@@ -125,6 +125,11 @@
 
 <div class="row">
     <div class="col-12">
+        <div class="d-flex gap-2 mb-3">
+            <a href="{% url 'generar_pdf_preventivo' preventivo.id %}" class="btn btn-dark" target="_blank">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
+        </div>
         <a href="{% url 'historial' %}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Volver al Historial
         </a>

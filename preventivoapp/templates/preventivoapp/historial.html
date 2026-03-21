@@ -68,6 +68,9 @@
                                 <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tecnico.username }}</td>
                                 <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_preventivo' p.codigo %}'">{{ p.tiempo|duration }}</td>
                                 <td>
+                                    <a href="{% url 'generar_pdf_preventivo' p.id %}" class="btn btn-sm btn-dark" target="_blank">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </a>
                                     <a href="{% url 'eliminar_preventivo' p.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar preventivo?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -109,6 +112,9 @@
                                 <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tecnico.username }}</td>
                                 <td style="cursor: pointer;" onclick="window.location='{% url 'detalle_historial_correctivo' c.codigo %}'">{{ c.tiempo|duration }}</td>
                                 <td>
+                                    <a href="{% url 'generar_pdf_correctivo' c.id %}" class="btn btn-sm btn-dark" target="_blank">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                    </a>
                                     <a href="{% url 'eliminar_correctivo' c.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar correctivo?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
