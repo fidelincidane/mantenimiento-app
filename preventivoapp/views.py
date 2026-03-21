@@ -120,14 +120,39 @@ def detalle_preventivo(request, id):
             # Analizar texto para detectar repuestos automáticamente
             texto = observaciones.lower()
             
-            # Lista de tipos de repuestos
-            tipos_repuestos = 'rodamiento|cojinete|junta|filtro|bomba|correa|cadena|sello|empaquetadura|piñón|rueda|rodillo|polea|tensor|reten|casquillo|ruleman|buje|arandela|brida|tornillo|perno|enchufe|conector|sensor|termico|presostato|contactor|relé|electroválvula|electroválvula|bobina|motor|ventilador|turbina|compresor|válvula|manómetro|caudalímetro'
+            # Lista amplia de tipos de repuestos - Mecánicas, Eléctricas, Neumáticas, Hidráulicas
+            tipos_repuestos = (
+                'rodamiento|cojinete|junta|filtro|bomba|correa|cadena|sello|'
+                'empaquetadura|piñón|rueda|rodillo|polea|tensor|reten|casquillo|'
+                'ruleman|buje|arandela|brida|tornillo|perno|enchufe|conector|'
+                'sensor|termostato|presostato|contactor|rele|relé|electroválvula|'
+                'bobina|motor|ventilador|turbina|compresor|válvula|manómetro|'
+                'caudalímetro|aceite|grasa|disco|bandeja|carcasa|tapa|'
+                'panel|interruptor|potenciometro|condensador|resistencia|diodo|'
+                'transistor|placa|chip|led|lampara|neumatico|hidraulico|'
+                'manguera|tubo|boquilla|inyector|tobera|cilindro|actuador|'
+                'regulador|distribuidor|acumulador|enfriador|secador|separador|'
+                'purga|conector|terminal|bornes|cable|conduit|canaleta|bandeja|'
+                'variador|inversor|transformador|fuente|rectificador|proteccion|'
+                'fusible|interruptor|selector|finalcarrera|encoder|resolver|'
+                'encoder|variador|inversor|softstarter|arrancador|guardamotor|'
+                'reductor|engranaje|corredera|guia|husillo|tornillosinfín|'
+                'cadena|pinón|crownwheel|trapecial|dentada|laton|bronze|'
+                'oring|junta|torica|espárrago|espadachin|clavija|pasador|chaveta|'
+                'resorte|muelle|ballesta|amortiguador|silentblock|vibracion|'
+                'calefactor|resistencia|termopar|pt100|termistor|sonda|sensor|'
+                'encoder|microswitch|micro|reed|hall|inductivo|capacitivo|'
+                'fotocelula|barmera|barrera|fin|carrera|detector|proximo'
+            )
             
             # Patrones para detectar repuestos con cantidad
             patrones_cantidad = [
                 (rf'(\d+)\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 2),  # "2 rodamientos 6205"
                 (rf'se\s+cambian?\s+(\d+)\s+{tipos_repuestos}[es]?', 1),  # "se cambian 2 rodamientos"
                 (rf'cambiados?\s+(\d+)\s+{tipos_repuestos}[es]?', 1),  # "cambiados 2 rodamientos"
+                (rf'(\d+)\s+{tipos_repuestos}[es]?', 1),  # "2 filtros"
+                (rf'instalados?\s+(\d+)\s+{tipos_repuestos}[es]?', 1),  # "instalados 3 sensores"
+                (rf'montados?\s+(\d+)\s+{tipos_repuestos}[es]?', 1),  # "montados 2 motores"
             ]
             
             # Patrones para detectar repuestos sin cantidad
@@ -135,6 +160,10 @@ def detalle_preventivo(request, id):
                 (rf'cambiado\s+por\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "cambiado por rodamiento 6205"
                 (rf'sustituido\s+por\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "sustituido por filtro"
                 (rf'nuevo\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "nuevo rodamiento 6205"
+                (rf'nueva\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "nueva junta tórica"
+                (rf'colocado\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "colocado filtro"
+                (rf'instalado\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "instalado sensor"
+                (rf'montado\s+{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "montado motor"
                 (rf'{tipos_repuestos}[es]?\s+([a-zA-Z0-9\-]+)', 1),  # "rodamiento 6205" (genérico)
             ]
             
